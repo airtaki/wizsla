@@ -5,5 +5,8 @@ export const response = (req: Request, res: Response, next: NextFunction) => {
   res
     .status(res.statusCode)
     .setHeader("Content-Type", "application/json")
-    .json(data);
+    .json({
+      success: true,
+      ...data
+    });
 };

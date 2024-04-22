@@ -9,25 +9,19 @@ export const sendUdpCommand = async (data: Data, device: Device) => {
       client.close();
       reject(error);
     })
-    .on('message', (message, { address, port }) => {
-      let response: {result: {success: boolean}} = {result: {success: false}};
+    .on('message', (message) => {
+      let response: {result: { success: boolean }} = {result: { success: false }};
       try {
         response = JSON.parse(message.toString());
         if (response.result.success !== true) {
           throw new Error("Got a response without success === true!");
         }
-        client.close();
+        resolve({ timestamp, response });
       } catch (error) {
         reject(error);
+      } finally {
         client.close();
       }
-      resolve({
-        timestamp,
-        address,
-        port,
-        data,
-        result: response.result
-      });
     })
     .send(JSON.stringify({ ...data, id: device.id }), device.port, device.ip, (err) => {
       if (err) {

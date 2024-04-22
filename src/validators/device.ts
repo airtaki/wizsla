@@ -32,5 +32,8 @@ export const device = [
         req.app.set("device", device);
         return true;
       }),
-  ])
+  ], {
+    message: "Device must be either an IP address or a name!",
+    errorType: "least_errored",
+  })
 ];
