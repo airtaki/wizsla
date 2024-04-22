@@ -16,7 +16,7 @@ export const turnOn = async (device: Device, dimming?: number ) => {
     if (dimming) data.params.dimming = dimming;
     return await sendUdpCommand(data, device);
   } catch (error) {
-    console.error("Error:", error);
+    throw error;
   }
 };
 
@@ -25,7 +25,7 @@ export const turnOff = async (device: Device) => {
     const data: Data = { method: "setPilot", params: { state: false }};
     return await sendUdpCommand(data, device);
   } catch (error) {
-    console.error("Error:", error);
+    throw error;
   }
 };
 
@@ -41,6 +41,6 @@ export const setScene = async (device: Device, scene: Scene, dimming?: number) =
     };
     return await sendUdpCommand(data, device);
   } catch (error) {
-    console.error("Error:", error);
+    throw error;
   }
 };

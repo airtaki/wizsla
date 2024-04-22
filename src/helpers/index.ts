@@ -1,5 +1,6 @@
 import udp from 'dgram';
 import { Data, Device, Scene } from './types';
+import { DeviceCommandError } from '../errors';
 
 export const sendUdpCommand = async (data: Data, device: Device) => {
   return await new Promise((resolve, reject) => {
@@ -13,8 +14,8 @@ export const sendUdpCommand = async (data: Data, device: Device) => {
       let response: {result: { success: boolean }} = {result: { success: false }};
       try {
         response = JSON.parse(message.toString());
-        if (response.result.success !== true) {
-          throw new Error("Got a response without success === true!");
+        if (response?.result?.success !== true) {
+          throw new DeviceCommandError("Got a response without success === true!", response);
         }
         resolve({ timestamp, response });
       } catch (error) {
@@ -25,40 +26,24 @@ export const sendUdpCommand = async (data: Data, device: Device) => {
     })
     .send(JSON.stringify({ ...data, id: device.id }), device.port, device.ip, (err) => {
       if (err) {
-        console.log('Error:', err);
+        throw new DeviceCommandError("Failed to send command to device!", err);
       }
     });
   });
 };
 
-export const getDeviceByIp = (devices: Device[], ip: string): Device => {
-  const device = devices.find((device) => device.ip === ip);
-  if (!device) {
-    throw new Error(`Device with IP ${ip} not found!`);
-  }
-  return device;
+export const getDeviceByIp = (devices: Device[], ip: string): Device | undefined => {
+  return devices.find((device) => device.ip === ip);
 };
 
-export const getDeviceByName = (devices: Device[], name: string): Device => {
-  const device = devices.find((device) => device.name.toLowerCase() === name.toLowerCase());
-  if (!device) {
-    throw new Error(`Device with name ${name} not found!`);
-  }
-  return device;
+export const getDeviceByName = (devices: Device[], name: string): Device | undefined => {
+  return devices.find((device) => device.name.toLowerCase() === name.toLowerCase());
 };
 
-export const getSceneById = (scenes: Scene[], id: number): Scene => {
-  const scene = scenes.find((scene) => scene.id === id);
-  if (!scene) {
-    throw new Error(`Scene with ID ${id} not found!`);
-  }
-  return scene;
+export const getSceneById = (scenes: Scene[], id: number): Scene | undefined => {
+  return scenes.find((scene) => scene.id === id);
 };
 
-export const getSceneByName = (scenes: Scene[], name: string): Scene => {
-  const scene = scenes.find((scene) => scene.name.toLowerCase() === name.toLowerCase());
-  if (!scene) {
-    throw new Error(`Scene with name ${name} not found!`);
-  }
-  return scene;
+export const getSceneByName = (scenes: Scene[], name: string): Scene | undefined => {
+  return scenes.find((scene) => scene.name.toLowerCase() === name.toLowerCase());
 };

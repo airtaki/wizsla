@@ -23,6 +23,19 @@ export class ValidationError extends Error {
   }
 };
 
+export class DeviceCommandError extends Error {
+  public statusCode: number;
+  public errorObject?: any;
+
+  constructor(message?: string, errorObject?: any) {
+    super(message);
+    this.name = 'DeviceCommandError';
+    this.statusCode = 503;
+    this.errorObject = errorObject;
+    Object.setPrototypeOf(this, DeviceCommandError.prototype);
+  }
+};
+
 export class UnprocessableEntityError extends Error {
   public statusCode: number;
 

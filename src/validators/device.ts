@@ -1,8 +1,9 @@
 import { body, oneOf } from "express-validator";
 import { getDeviceByIp, getDeviceByName } from "../helpers";
+import { Device } from "../helpers/types";
 import config from "config";
 
-export const device = [
+export const deviceValidator = [
   oneOf([
     // Device IP address given
     body("device")
@@ -11,7 +12,7 @@ export const device = [
       .isString().bail()
       .isIP().bail()
       .custom((value, { req }) => {
-        const device = getDeviceByIp(config.get("devices"), value);
+        const device: Device | undefined = getDeviceByIp(config.get("devices"), value);
         if (!device) {
           return Promise.reject("Device not found!");
         }
@@ -25,7 +26,7 @@ export const device = [
       .isString().bail()
       .isAlphanumeric().bail()
       .custom((value, { req }) => {
-        const device = getDeviceByName(config.get("devices"), value);
+        const device: Device | undefined = getDeviceByName(config.get("devices"), value);
         if (!device) {
           return Promise.reject("Device not found!");
         }

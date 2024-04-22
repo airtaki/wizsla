@@ -1,25 +1,23 @@
 import type { Request, Response, NextFunction } from "express";
 import {
-  ValidationError,
+  DeviceCommandError,
   NotFoundError,
   UnauthorizedAccess,
   UnprocessableEntityError,
+  ValidationError
 } from ".";
 
 export default (
   err:
-    | Error
-    | ValidationError
-    | NotFoundError
-    | UnauthorizedAccess
-    | UnprocessableEntityError,
+    Error
+,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   console.error(err);
   res
-    .status("statusCode" in err ? err.statusCode : 500)
+    .status("statusCode" in err ? err.statusCode as number : 500)
     .setHeader("Content-Type", "application/json")
     .json({
       success: false,
