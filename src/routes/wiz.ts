@@ -7,6 +7,7 @@ import * as controller from "../controllers/wiz";
 import { response } from "../middlewares/response";
 export const wizRouter = express.Router();
 
+wizRouter.post("/status", deviceValidator, validationHandler, controller.status, response);
 wizRouter.post("/turn-on", deviceValidator, dimmingValidator, validationHandler, controller.turnOn, response);
 wizRouter.post("/turn-off", deviceValidator, validationHandler, controller.turnOff, response);
 wizRouter.post("/scene", deviceValidator, sceneValidator, dimmingValidator, speedValidator, validationHandler, controller.setScene, response);

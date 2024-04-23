@@ -2,6 +2,16 @@ import type { Request, Response, NextFunction } from 'express';
 import * as wiz from '../services/wiz';
 import { Device, Scene } from '../helpers/types';
 
+export const status = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const device: Device = req.app.get('device');
+    req.app.set('data', await wiz.status(device));
+  } catch (err) {
+    return next(err);
+  }
+  return next();
+};
+
 export const turnOn = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const device: Device = req.app.get('device');

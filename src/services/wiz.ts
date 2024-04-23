@@ -10,6 +10,15 @@ export const getInfo = async (device: Device) => {
   }
 };
 
+export const status = async (device: Device) => {
+  try {
+    const data: Data = { method: "getPilot", params: {} };
+    return await sendUdpCommand(device, data);
+  } catch (error) {
+    throw error;
+  }
+}
+
 export const turnOn = async (device: Device, dimming?: number ) => {
   try {
     const data: Data = { method: "setPilot", params: { state: true }};
