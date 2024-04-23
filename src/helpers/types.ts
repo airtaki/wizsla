@@ -28,6 +28,11 @@ export type Device = {
 export type Scene = {
   id: number;
   name: string;
+  rgbtw: boolean;
+  tw: boolean;
+  dw: boolean;
+  as: boolean;
+  ad: boolean;
 }; 
 
 export type Input = {

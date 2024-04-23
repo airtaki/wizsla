@@ -35,8 +35,8 @@ export const setScene = async (device: Device, scene: Scene, dimming?: number, s
       method: "setPilot",
       params: {
         state: true,
-        dimming: dimming || undefined,
-        speed: speed || undefined,
+        dimming: dimming && scene.ad ? dimming : undefined,
+        speed: speed && scene.as ? speed : undefined,
         sceneId: scene.id
       }
     };
@@ -52,7 +52,6 @@ export const setRGB = async (device: Device, red: number, green: number, blue: n
       method: "setPilot",
       params: {
         state: true,
-        sceneId: 0,
         dimming: dimming || undefined,
         r: red,
         g: green,
@@ -64,3 +63,22 @@ export const setRGB = async (device: Device, red: number, green: number, blue: n
     throw error;
   }
 }
+
+export const setTemperature = async (device: Device, temperature: number, dimming?: number) => {
+  try {
+    const data: Data = {
+      method: "setPilot",
+      params: {
+        state: true,
+        temp: temperature,
+        dimming: dimming || undefined,
+        r: 0,
+        g: 0,
+        b: 0
+      }
+    };
+    return await sendUdpCommand(device, data);
+  } catch (error) {
+    throw error;
+  }
+};

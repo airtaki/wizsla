@@ -49,3 +49,15 @@ export const setRGB = async (req: Request, res: Response, next: NextFunction) =>
   }
   return next();
 };
+
+export const setTemperature = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const device: Device = req.app.get('device');
+    const temp: number = req.app.get('temp');
+    const dimming: number | undefined = req.app.get('dimming');
+    req.app.set('data', await wiz.setTemperature(device, temp, dimming));
+  } catch (err) {
+    return next(err);
+  }
+  return next();
+};

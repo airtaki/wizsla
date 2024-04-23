@@ -1,5 +1,42 @@
 import { body, oneOf } from "express-validator";
 
+export const tempValidator = [
+  oneOf([
+    // Numeric value given
+    body("temp")
+      .not()
+      .isEmpty().bail()
+      .isNumeric().bail()
+      .isInt({ min: 2200, max: 6500 }).bail()
+      .custom((value, { req }) => {
+        if (typeof value !== "number") {
+          return Promise.reject("Temp must be a number!");
+        }
+        req.app.set("temp", value);
+        return true;
+      }),
+    // String value given
+    body("temp")
+      .not()
+      .isEmpty().bail()
+      .isString().bail()
+      .custom((value, { req }) => {
+        if (typeof value !== "string" || !value.endsWith("K")) {
+          return Promise.reject("Temp must be a string!");
+        }
+        const kelvin = parseInt(value, 10);
+        if (kelvin < 2200 || kelvin > 6500) {
+          return Promise.reject("Temp must be a string between 2200K and 6500K!");
+        }
+        req.app.set("temp", kelvin);
+        return true;
+      }),
+  ], {
+    message: "Temp must be either an integer between 2200 and 6500, or a string between 2200K and 6500K!",
+    errorType: "least_errored"
+  })
+];
+
 export const dimmingValidator = [
   oneOf([
     // Decimal value given
