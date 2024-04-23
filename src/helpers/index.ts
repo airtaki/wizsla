@@ -2,7 +2,7 @@ import udp from 'dgram';
 import { Data, Device, Scene } from './types';
 import { DeviceCommandError } from '../errors';
 
-export const sendUdpCommand = async (data: Data, device: Device) => {
+export const sendUdpCommand = async (device: Device, data: Data) => {
   return await new Promise((resolve, reject) => {
     const client = udp.createSocket('udp4');
     const timestamp = new Date;
@@ -15,7 +15,7 @@ export const sendUdpCommand = async (data: Data, device: Device) => {
       try {
         response = JSON.parse(message.toString());
         if (response?.result?.success !== true) {
-          throw new DeviceCommandError("Got a response without success === true!", response);
+          throw new DeviceCommandError("Got a response without success === true!", { response, data });
         }
         resolve({ timestamp, response });
       } catch (error) {
@@ -26,7 +26,7 @@ export const sendUdpCommand = async (data: Data, device: Device) => {
     })
     .send(JSON.stringify({ ...data, id: device.id }), device.port, device.ip, (err) => {
       if (err) {
-        throw new DeviceCommandError("Failed to send command to device!", err);
+        throw new DeviceCommandError("Failed to send command to device!", { err, data });
       }
     });
   });

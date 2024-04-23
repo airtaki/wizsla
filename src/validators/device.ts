@@ -35,6 +35,6 @@ export const deviceValidator = [
       }),
   ], {
     message: "Device must be either an IP address or a name!",
-    errorType: "least_errored",
+    errorType: "least_errored"
   })
 ];
