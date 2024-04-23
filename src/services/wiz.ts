@@ -29,13 +29,14 @@ export const turnOff = async (device: Device) => {
   }
 };
 
-export const setScene = async (device: Device, scene: Scene, dimming?: number) => {
+export const setScene = async (device: Device, scene: Scene, dimming?: number, speed?: number) => {
   try {
     const data: Data = {
       method: "setPilot",
       params: {
         state: true,
         dimming: dimming || undefined,
+        speed: speed || undefined,
         sceneId: scene.id
       }
     };
@@ -45,14 +46,17 @@ export const setScene = async (device: Device, scene: Scene, dimming?: number) =
   }
 };
 
-export const setRGB = async (device: Device, r: number, g: number, b: number, dimming?: number) => {
+export const setRGB = async (device: Device, red: number, green: number, blue: number, dimming?: number) => {
   try {
     const data: Data = {
       method: "setPilot",
       params: {
         state: true,
+        sceneId: 0,
         dimming: dimming || undefined,
-        r, g, b
+        r: red,
+        g: green,
+        b: blue
       }
     };
     return await sendUdpCommand(device, data);

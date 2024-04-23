@@ -35,6 +35,41 @@ export const dimmingValidator = [
   })
 ];
 
+export const speedValidator = [
+  oneOf([
+    // Decimal value given
+    body("speed")
+      .optional()
+      .isNumeric().bail()
+      .isInt({ min: 10, max: 100 }).bail()
+      .custom((value, { req }) => {
+        if (typeof value !== "number") {
+          return Promise.reject("Speed must be a number!");
+        }
+        req.app.set("speed", value);
+        return true;
+      }),
+    // Percentage given
+    body("speed")
+      .optional()
+      .isString().bail()
+      .custom((value, { req }) => {
+        if (typeof value !== "string" || !value.endsWith("%")) {
+          return Promise.reject("Speed must be percentage between 10% and 100%!");
+        }
+        const percentage = parseInt(value, 10);
+        if (percentage < 10 || percentage > 100) {
+          return Promise.reject("Speed must be percentage between 10% and 100%!");
+        }
+        req.app.set("speed", percentage);
+        return true;
+      }),
+  ], {
+    message: "Speed must be either an integer between 10 and 100, or a percentage between 10% and 100%!",
+    errorType: "least_errored"
+  })
+];
+
 export const rgbValidator = [
   oneOf([
     // Decimal value given

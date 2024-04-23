@@ -28,7 +28,8 @@ export const setScene = async (req: Request, res: Response, next: NextFunction) 
     const device: Device = req.app.get('device');
     const scene: Scene = req.app.get('scene');
     const dimming: number | undefined = req.app.get('dimming');
-    req.app.set('data', await wiz.setScene(device, scene, dimming));
+    const speed: number | undefined = req.app.get('speed');
+    req.app.set('data', await wiz.setScene(device, scene, dimming, speed));
   } catch (err) {
     return next(err);
   }
