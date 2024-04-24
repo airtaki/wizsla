@@ -10,7 +10,7 @@ export const sceneValidator = [
       .not()
       .isEmpty().bail()
       .isNumeric().bail()
-      .isInt({ min: 0, max: 32 }).bail()
+      .isInt({ min: 0, max: 36 }).bail()
       .custom((value, { req }) => {
         if (typeof value !== "number") {
           return Promise.reject("Scene not found!");

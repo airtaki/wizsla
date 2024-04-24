@@ -37,7 +37,10 @@
     { "id": 30, "name": "Golden White", "rgbtw": true, "tw": true, "dw": true, "as": true, "ad": true },
     { "id": 31, "name": "Pulse", "rgbtw": true, "tw": true, "dw": true, "as": true, "ad": true },
     { "id": 32, "name": "Steampunk", "rgbtw": true, "tw": true, "dw": true, "as": true, "ad": true },
-    { "id": 33, "name": "Diwali", "rgbtw": true, "tw": true, "dw": true, "as": true, "ad": true }
+    { "id": 33, "name": "Diwali", "rgbtw": true, "tw": true, "dw": true, "as": true, "ad": true },
+    { "id": 34, "name": "Unknown", "rgbtw": true, "tw": false, "dw": false, "as": false, "ad": false },
+    { "id": 35, "name": "Alarm", "rgbtw": true, "tw": false, "dw": false, "as": false, "ad": false },
+    { "id": 36, "name": "Snowy sky", "rgbtw": true, "tw": true, "dw": true, "as": true, "ad": true }
   ],
   "devices": []
 }

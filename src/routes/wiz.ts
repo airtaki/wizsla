@@ -1,7 +1,8 @@
 import express from "express";
 import { deviceValidator } from "../validators/device";
 import { sceneValidator } from "../validators/scene";
-import { dimmingValidator, rgbValidator, speedValidator, tempValidator } from "../validators/properties";
+import { dimmingValidator, speedValidator, tempValidator } from "../validators/properties";
+import { rgbValidator } from "../validators/rgb";
 import { validationHandler } from "../middlewares/validator-handler";
 import * as controller from "../controllers/wiz";
 import { response } from "../middlewares/response";

@@ -1,8 +1,8 @@
 import udp from 'dgram';
-import { Data, Device, Scene } from './types';
+import { Data, Device, Scene, DeviceResponse } from './types';
 import { DeviceCommandError } from '../errors';
 
-export const sendUdpCommand = async (device: Device, data: Data) => {
+export const sendUdpCommand = async (device: Device, data: Data): Promise<{ timestamp: Date, response: DeviceResponse }> => {
   return await new Promise((resolve, reject) => {
     const client = udp.createSocket('udp4');
     const timestamp = new Date;
@@ -11,7 +11,7 @@ export const sendUdpCommand = async (device: Device, data: Data) => {
       reject(error);
     })
     .on('message', (message) => {
-      let response: {result: { success: boolean }} = {result: { success: false }};
+      let response: DeviceResponse = {result: { success: false }};
       try {
         response = JSON.parse(message.toString());
         if (data.method !== 'getPilot' && response?.result?.success !== true) {

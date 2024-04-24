@@ -40,3 +40,18 @@ export type Input = {
   scene?: Scene;
   dimming?: number;
 };
+
+export type DeviceResponse = {
+  method?: string;
+  id?: number;
+  env?: string;
+  result?: {
+    success: boolean;
+    mac?: string;
+    rssi?: number;
+    state?: boolean;
+    sceneId?: number;
+    speed?: number;
+    dimming?: number;
+  };
+};

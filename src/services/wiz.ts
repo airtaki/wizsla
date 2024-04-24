@@ -1,15 +1,6 @@
 import { sendUdpCommand } from "../helpers";
 import { Data, Device, Scene } from "../helpers/types";
 
-export const getInfo = async (device: Device) => {
-  try {
-    const data: Data = { method: "getPilot", params: {} };
-    return await sendUdpCommand(device, data);
-  } catch (error) {
-    console.error("Error:", error);
-  }
-};
-
 export const status = async (device: Device) => {
   try {
     const data: Data = { method: "getPilot", params: {} };
@@ -55,16 +46,18 @@ export const setScene = async (device: Device, scene: Scene, dimming?: number, s
   }
 };
 
-export const setRGB = async (device: Device, red: number, green: number, blue: number, dimming?: number) => {
+export const setRGB = async (device: Device, colors: { r: number, g: number, b: number, c?: number, w?: number }, dimming?: number) => {
   try {
     const data: Data = {
       method: "setPilot",
       params: {
         state: true,
         dimming: dimming || undefined,
-        r: red,
-        g: green,
-        b: blue
+        r: colors.r,
+        g: colors.g,
+        b: colors.b,
+        c: colors.c || undefined,
+        w: colors.w || undefined
       }
     };
     return await sendUdpCommand(device, data);

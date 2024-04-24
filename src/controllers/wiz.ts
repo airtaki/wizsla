@@ -52,8 +52,10 @@ export const setRGB = async (req: Request, res: Response, next: NextFunction) =>
     const r: number = req.app.get('r');
     const g: number = req.app.get('g');
     const b: number = req.app.get('b');
+    const c: number | undefined = req.app.get('c');
+    const w: number | undefined = req.app.get('w');
     const dimming: number | undefined = req.app.get('dimming');
-    req.app.set('data', await wiz.setRGB(device, r, g, b, dimming));
+    req.app.set('data', await wiz.setRGB(device, { r, g, b, c, w }, dimming));
   } catch (err) {
     return next(err);
   }
