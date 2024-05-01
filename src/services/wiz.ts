@@ -1,35 +1,37 @@
 import { sendUdpCommand } from "../helpers";
-import { Data, Device, Scene } from "../helpers/types";
+import { AppResponse, Data, Device, Scene } from "../helpers/types";
 
-export const status = async (device: Device) => {
+export const status = async (device: Device): Promise<AppResponse> => {
   try {
     const data: Data = { method: "getPilot", params: {} };
     return await sendUdpCommand(device, data);
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const turnOn = async (device: Device, dimming?: number ) => {
+export const turnOn = async (device: Device, dimming?: number ): Promise<AppResponse> => {
   try {
     const data: Data = { method: "setPilot", params: { state: true }};
     if (dimming) data.params.dimming = dimming;
-    return await sendUdpCommand(device, data);
+    await sendUdpCommand(device, data);
+    return status(device);
   } catch (error) {
     throw error;
   }
 };
 
-export const turnOff = async (device: Device) => {
+export const turnOff = async (device: Device): Promise<AppResponse> => {
   try {
     const data: Data = { method: "setPilot", params: { state: false }};
-    return await sendUdpCommand(device, data);
+    await sendUdpCommand(device, data);
+    return status(device);
   } catch (error) {
     throw error;
   }
 };
 
-export const setScene = async (device: Device, scene: Scene, dimming?: number, speed?: number) => {
+export const setScene = async (device: Device, scene: Scene, dimming?: number, speed?: number): Promise<AppResponse> => {
   try {
     const data: Data = {
       method: "setPilot",
@@ -40,13 +42,14 @@ export const setScene = async (device: Device, scene: Scene, dimming?: number, s
         sceneId: scene.id
       }
     };
-    return await sendUdpCommand(device, data);
+    await sendUdpCommand(device, data);
+    return status(device);
   } catch (error) {
     throw error;
   }
 };
 
-export const setRGB = async (device: Device, colors: { r: number, g: number, b: number, c?: number, w?: number }, dimming?: number) => {
+export const setRGB = async (device: Device, colors: { r: number, g: number, b: number, c?: number, w?: number }, dimming?: number): Promise<AppResponse> => {
   try {
     const data: Data = {
       method: "setPilot",
@@ -60,13 +63,14 @@ export const setRGB = async (device: Device, colors: { r: number, g: number, b: 
         w: colors.w || undefined
       }
     };
-    return await sendUdpCommand(device, data);
+    await sendUdpCommand(device, data);
+    return status(device);
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const setTemperature = async (device: Device, temperature: number, dimming?: number) => {
+export const setTemp = async (device: Device, temperature: number, dimming?: number): Promise<AppResponse> => {
   try {
     const data: Data = {
       method: "setPilot",
@@ -79,7 +83,8 @@ export const setTemperature = async (device: Device, temperature: number, dimmin
         b: 0
       }
     };
-    return await sendUdpCommand(device, data);
+    await sendUdpCommand(device, data);
+    return status(device);
   } catch (error) {
     throw error;
   }

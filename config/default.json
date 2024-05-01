@@ -42,5 +42,8 @@
     { "id": 35, "name": "Alarm", "rgbtw": true, "tw": false, "dw": false, "as": false, "ad": false },
     { "id": 36, "name": "Snowy sky", "rgbtw": true, "tw": true, "dw": true, "as": true, "ad": true }
   ],
-  "devices": []
+  "devices": [],
+  "timer": {},
+  "latitude": 47.467477,
+  "longitude": 19.166415
 }

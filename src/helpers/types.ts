@@ -1,21 +1,27 @@
-import e from "express";
+
+export type Params = {
+  temp?: number;
+  state?: boolean;
+  sceneId?: number;
+  speed?: number;
+  dimming?: number;
+  r?: number;
+  g?: number;
+  b?: number;
+  c?: number;
+  w?: number;
+};
+
+export type Result = Params & {
+  success: boolean;
+  mac?: string;
+  rssi?: number;
+};
 
 export type Data = {
   method: string;
   id?: number;
-  params: {
-    state?: boolean;
-    sceneId?: number;
-    play?: boolean;
-    speed?: number;
-    r?: number;
-    g?: number;
-    b?: number;
-    c?: number;
-    w?: number;
-    temp?: number;
-    dimming?: number;
-  };
+  params: Params;
 };
 
 export type Device = {
@@ -23,6 +29,18 @@ export type Device = {
   name: string;
   ip: string;
   port: number;
+};
+
+export type DeviceResponse = {
+  method: string;
+  id?: number;
+  env?: string;
+  result: Result;
+};
+
+export type AppResponse = {
+  timestamp: Date;
+  result: Result;
 };
 
 export type Scene = {
@@ -39,19 +57,4 @@ export type Input = {
   device?: Device;
   scene?: Scene;
   dimming?: number;
-};
-
-export type DeviceResponse = {
-  method?: string;
-  id?: number;
-  env?: string;
-  result?: {
-    success: boolean;
-    mac?: string;
-    rssi?: number;
-    state?: boolean;
-    sceneId?: number;
-    speed?: number;
-    dimming?: number;
-  };
 };
