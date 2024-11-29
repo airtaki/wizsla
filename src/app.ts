@@ -3,7 +3,6 @@ import config from 'config';
 import express from 'express';
 import 'express-async-errors';
 import bodyParser from 'body-parser';
-import ip from 'ip';
 
 import { wizRouter } from './routes/wiz';
 import errorHandler from './errors/error-handler';
@@ -21,7 +20,7 @@ const appName = config.get('app.name');
 const appPort = config.get('app.port');
 
 app.listen(appPort, () => {
-  console.log(`${appName} is listening on ${ip.address()}:${appPort}...`);
+  console.log(`${appName} is listening on port ${appPort}...`);
 });
 
 

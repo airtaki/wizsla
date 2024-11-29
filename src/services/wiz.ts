@@ -49,6 +49,23 @@ export const setScene = async (device: Device, scene: Scene, dimming?: number, s
   }
 };
 
+export const setParams = async (device: Device, dimming?: number, speed?: number): Promise<AppResponse> => {
+  try {
+    const data: Data = {
+      method: "setPilot",
+      params: {
+        state: true,
+        dimming: dimming ? dimming : undefined,
+        speed: speed ? speed : undefined,
+      }
+    };
+    await sendUdpCommand(device, data);
+    return status(device);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const setRGB = async (device: Device, colors: { r: number, g: number, b: number, c?: number, w?: number }, dimming?: number): Promise<AppResponse> => {
   try {
     const data: Data = {

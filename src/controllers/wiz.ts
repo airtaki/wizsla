@@ -33,6 +33,18 @@ export const turnOff: RequestHandler = async (req: Request, res: Response, next:
   return next();
 };
 
+export const setParams: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const device: Device = req.app.get('device');
+    const dimming: number | undefined = req.app.get('dimming');
+    const speed: number | undefined = req.app.get('speed');
+    req.app.set('response', await wiz.setParams(device, dimming, speed));
+  } catch (err) {
+    return next(err);
+  }
+  return next();
+};
+
 export const setScene: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const device: Device = req.app.get('device');

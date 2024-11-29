@@ -78,7 +78,7 @@ export const speedValidator = [
     body("speed")
       .optional()
       .isNumeric().bail()
-      .isInt({ min: 10, max: 100 }).bail()
+      .isInt({ min: 10, max: 200 }).bail()
       .custom((value, { req }) => {
         if (typeof value !== "number") {
           return Promise.reject("Speed must be a number!");

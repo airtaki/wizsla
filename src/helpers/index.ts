@@ -13,7 +13,7 @@ export const sendUdpCommand = async (device: Device, data: Data): Promise<{ time
     .on('message', (message) => {
       try {
         const response: DeviceResponse = JSON.parse(message.toString());
-        if (data.method !== 'getPilot' && response.result.success !== true) {
+        if (data.method !== 'getPilot' && response.result?.success !== true) {
           throw new DeviceCommandError("Got a response without success === true!", { response, data });
         }
         resolve({ timestamp, result: response.result });
