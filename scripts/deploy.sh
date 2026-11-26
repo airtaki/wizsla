@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Updates Wizsla on the Pi to the latest `main` and restarts it under PM2.
-# Run from anywhere: ~/wizsla/scripts/deploy.sh
+# Run from anywhere: /opt/wizsla/scripts/deploy.sh
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -59,7 +59,7 @@ pm2 save
 step "Waiting for /health"
 port=$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 || true)
 for _ in $(seq 1 30); do
-  if health=$(curl -fsS "http://127.0.0.1:${port:-3000}/health"); then
+  if health=$(curl -fs "http://127.0.0.1:${port:-3000}/health"); then
     echo "$health"
     running_node=$(node -p "JSON.parse(process.argv[1]).node" "$health")
     if [[ "$running_node" != "$(node -v)" ]]; then

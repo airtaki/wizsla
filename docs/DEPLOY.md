@@ -1,16 +1,20 @@
 # Üzemeltetés a Pi-n
 
 A Wizsla a `jerry` nevű Raspberry Pi-n fut PM2 alatt, a `taki` felhasználóval,
-a `main` ágról. Ez a leírás az első telepítést, a frissítést és a napi
-üzemeltetést írja le.
+a `main` ágról, a `/opt/wizsla` könyvtárból. Ez a leírás az első telepítést,
+a frissítést és a napi üzemeltetést írja le.
+
+A helyi hálózaton „élesnek” számító alkalmazások a `/opt/<alkalmazás>` alatt
+vannak (az FHS szerint ez a helye az önállóan telepített alkalmazásoknak). A
+`/opt` a root tulajdonában marad, csak az alkalmazások mappái a `taki`-éi.
 
 ## Előfeltételek
 
 - Node 24 (a `.nvmrc` szerint; a telepítő szkript ellenőrzi), nvm-mel:
   `nvm install 24 && nvm alias default 24`.
 - `git`, `curl`, PM2 és `pm2-logrotate` (ezek már megvannak).
-- A `better-sqlite3`-nak linux-arm64-re van előre fordított bináris; ha az
-  `npm ci` mégis fordítani kezd és elakad: `sudo apt install build-essential`.
+- `build-essential` (megvan): a `better-sqlite3` ha nem talál előre fordított
+  binárist, ezzel fordítja le magát.
 
 ### Node-verzió és PM2
 
@@ -25,9 +29,9 @@ a Wizslát az új Node-ra.
 ## Első telepítés
 
 ```bash
-cd ~
-git clone https://github.com/airtaki/wizsla.git
-cd wizsla
+sudo install -d -o taki -g taki /opt/wizsla
+git clone https://github.com/airtaki/wizsla.git /opt/wizsla
+cd /opt/wizsla
 git checkout main
 cp .env.example .env
 nano .env        # NODE_ENV=production, PORT=3200, a többi maradhat
@@ -35,13 +39,13 @@ nano .env        # NODE_ENV=production, PORT=3200, a többi maradhat
 ```
 
 A szkript telepíti a függőségeket, létrehozza az adatbázist
-(`data/wizsla.db`), lefordítja a kódot, elindítja PM2 alatt `wizsla` néven,
+(`/opt/wizsla/data/wizsla.db`), lefordítja a kódot, elindítja PM2 alatt `wizsla` néven,
 és megvárja, amíg a `/health` válaszol.
 
 Ezután az első admin kulcs és az izzók:
 
 ```bash
-npm run cli -- apikey:create --name "Admin" --level admin
+cd /opt/wizsla && npm run cli -- apikey:create --name "Admin" --level admin
 ```
 
 A kulcsot tedd el (jelszókezelőbe), majd a Swagger UI-ban
@@ -60,7 +64,7 @@ A `develop` ágon fejlesztünk; kiadáskor a `develop` a `main`-be kerül. Után
 a Pi-n:
 
 ```bash
-~/wizsla/scripts/deploy.sh
+/opt/wizsla/scripts/deploy.sh
 ```
 
 Lépései: a `main` lehúzása (csak fast-forward), adatbázismentés a migrációk
@@ -108,13 +112,14 @@ sor egy JSON objektum (pl. `jq`-val szűrhető).
 
 ## Adatbázismentés
 
-A szolgáltatás naponta ment a `data/backups/` könyvtárba (`VACUUM INTO`, futás
+A szolgáltatás naponta ment a `/opt/wizsla/data/backups/` könyvtárba (`VACUUM INTO`, futás
 közben is konzisztens), és a legutóbbi 14-et tartja meg (`BACKUP_KEEP`).
 Kézzel: `npm run cli -- db:backup`.
 
 Visszaállítás:
 
 ```bash
+cd /opt/wizsla
 pm2 stop wizsla
 cp data/backups/wizsla-20261127-030000.db data/wizsla.db
 pm2 start wizsla
@@ -128,7 +133,7 @@ gépre is átmásolni.
 
 ```bash
 # a Pi-n:
-cd ~/wizsla && npm run db:studio
+cd /opt/wizsla && npm run db:studio
 # a saját gépeden:
 ssh -L 5555:localhost:5555 taki@jerry
 ```

@@ -9,6 +9,9 @@
   "engines": {
     "node": ">=22.13"
   },
+  "scarfSettings": {
+    "enabled": false
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/airtaki/wizsla.git"
