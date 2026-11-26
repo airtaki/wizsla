@@ -1,0 +1,43 @@
+import type { LogLevel } from '@nestjs/common';
+import { z } from 'zod';
+
+/** Nest log levels, from the most verbose to the most severe. */
+const LOG_LEVELS = [
+  'verbose',
+  'debug',
+  'log',
+  'warn',
+  'error',
+  'fatal',
+] as const satisfies readonly LogLevel[];
+
+/**
+ * Infrastructure settings only. Domain data (rooms, bulbs, API keys) lives in
+ * the database and is managed through the API, never through the environment.
+ */
+export const envSchema = z.object({
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
+  HOST: z.string().min(1).default('0.0.0.0'),
+  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  LOG_LEVEL: z.enum(LOG_LEVELS).default('log'),
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+/** Validates the raw environment; used by ConfigModule at startup. */
+export function validateEnv(raw: Record<string, unknown>): Env {
+  const result = envSchema.safeParse(raw);
+  if (!result.success) {
+    throw new Error(
+      `Invalid environment configuration:\n${z.prettifyError(result.error)}`,
+    );
+  }
+  return result.data;
+}
+
+/** Returns the given level together with every more severe level. */
+export function logLevelsFrom(minimum: LogLevel): LogLevel[] {
+  return LOG_LEVELS.slice(LOG_LEVELS.indexOf(minimum));
+}
