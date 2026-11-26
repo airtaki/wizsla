@@ -27,6 +27,17 @@ export const envSchema = z.object({
     .string()
     .startsWith('file:', 'must be a SQLite file URL (file:...)')
     .default('file:./data/wizsla.db'),
+
+  /** Where discovery broadcasts; a subnet broadcast (e.g. 192.168.11.255) also works. */
+  WIZ_BROADCAST_ADDRESS: z.ipv4().default('255.255.255.255'),
+  /** UDP port of the bulbs. Only simulators and tests use another one. */
+  WIZ_PORT: z.coerce.number().int().min(1).max(65535).default(38899),
+  /** How long to wait for a bulb before resending. */
+  WIZ_TIMEOUT_MS: z.coerce.number().int().min(10).max(10000).default(1000),
+  /** How many times to resend an unanswered request. */
+  WIZ_RETRIES: z.coerce.number().int().min(0).max(10).default(2),
+  /** How long discovery collects answers. */
+  WIZ_DISCOVERY_MS: z.coerce.number().int().min(100).max(30000).default(2000),
 });
 
 export type Env = z.infer<typeof envSchema>;

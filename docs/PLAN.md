@@ -22,7 +22,7 @@ AI agent külön rendszerek lesznek, amelyek ezt az API-t hívják.
 | Bemeneti formátum | Egyetlen, egyértelmű formátum: számok és `#RRGGBB`. A régi `"50%"` / `"FF"` / `"3000K"` változatok megszűnnek      |
 
 Az env csak infrastruktúra-beállításokat tartalmaz (port, host, naplózási
-szint, adatbázis elérési útja). Szobák, izzók és kulcsok kizárólag az
+szint, adatbázis elérési útja, a Wiz hálózati időzítések). Szobák, izzók és kulcsok kizárólag az
 adatbázisban vannak.
 
 ## Fázisok
@@ -85,16 +85,28 @@ NestJS-től független rész (`src/wiz/`).
 **Kész, ha:** kulcs nélkül minden 401, `read` kulccsal nem lehet kapcsolni,
 a visszavont kulcs azonnal megszűnik. ✅
 
-### 3. Szobák és izzók adminisztrációja
+### 3. Szobák és izzók adminisztrációja ✅
 
-- CRUD szobákra és izzókra.
-- `POST /discovery/scan`: felderítés; az új izzók szoba nélkül kerülnek be.
-  Ha egy ismert MAC új IP-n jelentkezik, az IP automatikusan frissül.
-- `POST /bulbs/:id/identify`: az izzó néhányszor felvillan, majd visszaáll.
+- CRUD szobákra és izzókra. Hivatkozás id-vel vagy sluggal (`/rooms/etkezo`);
+  a slug a névből képződik ékezetek nélkül, és átnevezéskor nem változik.
+- `POST /discovery/scan`: felderítés; az új izzók szoba nélkül kerülnek be
+  („Wiz xxxxxx” névvel). Ha egy ismert MAC új IP-n jelentkezik, az IP
+  automatikusan frissül; a nem válaszoló regisztrált izzók `missing` listában
+  jönnek vissza. Törlés sosem történik.
+- `POST /bulbs/:ref/identify`: az izzó háromszor felvillan, majd visszaáll.
+- `GET /bulbs?room=<ref|none>`: szűrés szobára, illetve a szoba nélküliekre.
+- A nevek magyar ábécérend szerint rendeződnek („Nappali 2” a „Nappali 10”
+  előtt), mert az SQLite bájtsorrendben rendezne.
+- Hibák: elérhetetlen izzó 504, hibás izzóválasz 502, ütköző név/slug/MAC 409.
+- Új env: `WIZ_BROADCAST_ADDRESS`, `WIZ_PORT`, `WIZ_TIMEOUT_MS`,
+  `WIZ_RETRIES`, `WIZ_DISCOVERY_MS`.
+
+Valós hálózaton ellenőrizve: a felderítés ~5 mp alatt mind a 12 izzót
+regisztrálta, helyes modellel, firmware-rel és színhőmérséklet-tartománnyal.
 
 **Kész, ha:** a 4 szoba (nappali 2, étkező 6, konyha 2, háló 2 izzó) az API-n
 keresztül felvehető, és az izzók felderítéssel és villogtatással szobához
-rendelhetők.
+rendelhetők. ✅ (A szobák felvétele és az izzók beosztása kézi lépés, a Swagger UI-ból.)
 
 ### 4. Állapot
 

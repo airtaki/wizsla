@@ -11,10 +11,12 @@ export interface FakeWizBulbOptions {
   state?: Record<string, unknown>;
   /** `null` simulates older firmware without `getModelConfig`. */
   modelConfig?: Record<string, unknown> | null;
+  /** UDP port to listen on; random when omitted. */
+  port?: number;
 }
 
 /**
- * A Wiz bulb simulator listening on 127.0.0.1 (random port).
+ * A Wiz bulb simulator listening on 127.0.0.1 (random port by default).
  *
  * It keeps a pilot state, answers getPilot / setPilot / getSystemConfig /
  * registration like a real bulb, and can be told to misbehave.
@@ -55,9 +57,10 @@ export class FakeWizBulb {
   static start(options: FakeWizBulbOptions = {}): Promise<FakeWizBulb> {
     const socket = createSocket('udp4');
     const bulb = new FakeWizBulb(socket, options);
-    return new Promise((resolve) =>
-      socket.bind(0, '127.0.0.1', () => resolve(bulb)),
-    );
+    return new Promise((resolve, reject) => {
+      socket.once('error', reject);
+      socket.bind(options.port ?? 0, '127.0.0.1', () => resolve(bulb));
+    });
   }
 
   get address(): { ip: string; port: number } {

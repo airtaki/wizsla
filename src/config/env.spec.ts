@@ -8,7 +8,18 @@ describe('validateEnv', () => {
       PORT: 3000,
       LOG_LEVEL: 'log',
       DATABASE_URL: 'file:./data/wizsla.db',
+      WIZ_BROADCAST_ADDRESS: '255.255.255.255',
+      WIZ_PORT: 38899,
+      WIZ_TIMEOUT_MS: 1000,
+      WIZ_RETRIES: 2,
+      WIZ_DISCOVERY_MS: 2000,
     });
+  });
+
+  it('rejects a broadcast address that is not IPv4', () => {
+    expect(() => validateEnv({ WIZ_BROADCAST_ADDRESS: 'lan' })).toThrow(
+      /WIZ_BROADCAST_ADDRESS/,
+    );
   });
 
   it('rejects a DATABASE_URL that is not a SQLite file', () => {

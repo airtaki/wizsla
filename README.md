@@ -52,17 +52,40 @@ npm run cli -- apikey:revoke 3
 Only a SHA-256 hash of each key is stored. The last active admin key cannot
 be revoked.
 
+## Setting up rooms and bulbs
+
+All of this needs an admin key, and is easiest from the Swagger UI at `/docs`.
+
+1. `POST /discovery/scan` finds every bulb on the network and registers the
+   new ones, named `Wiz <last 6 digits of the MAC>` and without a room. Run it
+   again any time: known bulbs get their current IP, nothing is deleted, and
+   registered bulbs that did not answer are listed as `missing`.
+2. `POST /rooms` with `{"name": "Étkező"}` creates a room; its slug
+   (`etkezo`) is derived from the name and stays when the room is renamed.
+3. `POST /bulbs/{ref}/identify` blinks a bulb three times, so you can tell
+   which one it is, then `PATCH /bulbs/{ref}` with
+   `{"name": "Étkező 1", "roomId": 2}` names it and puts it in a room.
+
+Rooms and bulbs can be addressed by id or slug: `/rooms/2` and
+`/rooms/etkezo` are the same. `GET /bulbs?room=none` lists the bulbs that are
+not in a room yet.
+
 ## Configuration
 
 Only infrastructure settings come from the environment (see `.env.example`):
 
-| Variable       | Default                 | Description                                         |
-| -------------- | ----------------------- | --------------------------------------------------- |
-| `NODE_ENV`     | `development`           | `development`, `production` or `test`               |
-| `HOST`         | `0.0.0.0`               | Interface to listen on                              |
-| `PORT`         | `3000`                  | HTTP port                                           |
-| `LOG_LEVEL`    | `log`                   | `verbose`, `debug`, `log`, `warn`, `error`, `fatal` |
-| `DATABASE_URL` | `file:./data/wizsla.db` | SQLite file, relative to the working directory      |
+| Variable                | Default                 | Description                                         |
+| ----------------------- | ----------------------- | --------------------------------------------------- |
+| `NODE_ENV`              | `development`           | `development`, `production` or `test`               |
+| `HOST`                  | `0.0.0.0`               | Interface to listen on                              |
+| `PORT`                  | `3000`                  | HTTP port                                           |
+| `LOG_LEVEL`             | `log`                   | `verbose`, `debug`, `log`, `warn`, `error`, `fatal` |
+| `DATABASE_URL`          | `file:./data/wizsla.db` | SQLite file, relative to the working directory      |
+| `WIZ_BROADCAST_ADDRESS` | `255.255.255.255`       | Where discovery sends its broadcast                 |
+| `WIZ_PORT`              | `38899`                 | UDP port of the bulbs                               |
+| `WIZ_TIMEOUT_MS`        | `1000`                  | How long to wait for a bulb's answer                |
+| `WIZ_RETRIES`           | `2`                     | Resends before a bulb counts as unreachable         |
+| `WIZ_DISCOVERY_MS`      | `2000`                  | How long discovery listens for answers              |
 
 Rooms, bulbs and API keys are stored in the database and managed through the
 API. Invalid configuration stops the service at startup.
