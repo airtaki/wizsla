@@ -6,18 +6,20 @@ AI agent külön rendszerek lesznek, amelyek ezt az API-t hívják.
 
 ## Döntések
 
-| Téma              | Döntés                                                                                                        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------- |
-| Keretrendszer     | NestJS 12 (ESM), TypeScript 6, Node.js 24 LTS                                                                 |
-| Eszközök          | Vitest (unit + e2e), oxlint (típusalapú), Prettier, GitHub Actions                                            |
-| Adatbázis         | SQLite + Prisma; adminisztráció az API-n át, betekintés Prisma Studióval (SSH-alagúton)                       |
-| Hitelesítés       | API-kulcsok jogosultsági szintekkel: `read`, `control`, `admin`                                               |
-| Futtatás a Pi-n   | PM2 natívan (konténer nélkül), fork módban, egyetlen példányban                                               |
-| Monitorozás       | A meglévő Uptime Kuma figyeli a `/health` végpontot; külső telemetria nincs                                   |
-| Branchek          | `develop`: fejlesztés; `main`: production (a Pi-re kerülő kód)                                                |
-| Régi kód          | `v1-express` tag                                                                                              |
-| Fényerő           | 10–100                                                                                                        |
-| Bemeneti formátum | Egyetlen, egyértelmű formátum: számok és `#RRGGBB`. A régi `"50%"` / `"FF"` / `"3000K"` változatok megszűnnek |
+| Téma              | Döntés                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Keretrendszer     | NestJS 12 (ESM), TypeScript 6, Node.js 24 LTS                                                                      |
+| Eszközök          | Vitest (unit + e2e), oxlint (típusalapú), Prettier, GitHub Actions                                                 |
+| Validáció         | HTTP-kérések: class-validator + globális `ValidationPipe`; env és izzóválaszok: zod                                |
+| Adatbázis         | SQLite + Prisma 7 (better-sqlite3 adapter); adminisztráció az API-n át, betekintés Prisma Studióval (SSH-alagúton) |
+| Telemetria        | Nincs: a Prisma CLI frissítésellenőrzése kikapcsolva (`CHECKPOINT_DISABLE=1`), NestJS Observe nincs                |
+| Hitelesítés       | API-kulcsok jogosultsági szintekkel: `read`, `control`, `admin`                                                    |
+| Futtatás a Pi-n   | PM2 natívan (konténer nélkül), fork módban, egyetlen példányban                                                    |
+| Monitorozás       | A meglévő Uptime Kuma figyeli a `/health` végpontot; külső telemetria nincs                                        |
+| Branchek          | `develop`: fejlesztés; `main`: production (a Pi-re kerülő kód)                                                     |
+| Régi kód          | `v1-express` tag                                                                                                   |
+| Fényerő           | 10–100                                                                                                             |
+| Bemeneti formátum | Egyetlen, egyértelmű formátum: számok és `#RRGGBB`. A régi `"50%"` / `"FF"` / `"3000K"` változatok megszűnnek      |
 
 Az env csak infrastruktúra-beállításokat tartalmaz (port, host, naplózási
 szint, adatbázis elérési útja). Szobák, izzók és kulcsok kizárólag az
@@ -56,20 +58,32 @@ NestJS-től független rész (`src/wiz/`).
 - `setPilot` valódi izzón kipróbálva (`192.168.10.156`: be, 30%, 2700 K);
   a visszaolvasott állapot egyezett.
 
-### 2. Adatbázis és hitelesítés
+### 2. Adatbázis és hitelesítés ✅
 
-- Prisma + SQLite, migrációk.
+- Prisma 7 + SQLite (`prisma/schema.prisma`, `prisma.config.ts`), migrációk
+  a `prisma/migrations` alatt. A generált kliens a `src/generated/` alatt
+  van, a git nem követi; az `npm install` generálja (`postinstall`).
 - `Room`: név, slug, sorrend.
-- `Bulb`: név, MAC (egyedi, ez az azonosító), IP, port, szoba (opcionális),
-  modell, firmware, képességek (a `getSystemConfig` és a `getModelConfig`
-  válaszából), `enabled`, `lastSeenAt`.
-- `ApiKey`: név, hash, előtag, jogosultságok, utolsó használat, visszavonás.
-- Globális guard, végpontonkénti jogosultság; CLI parancs az első admin
-  kulcshoz; Swagger „Authorize”. Kivétel a `/health`, ami az Uptime Kuma
-  miatt kulcs nélkül is elérhető.
+- `Bulb`: név, MAC (egyedi, ez az azonosító), slug, IP, port, szoba
+  (opcionális), modulnév, firmware, típus, Kelvin-tartomány, `enabled`,
+  `lastSeenAt`.
+- `ApiKey`: név, előtag, SHA-256 hash, szint, létrehozás, utolsó használat
+  (legfeljebb percenként frissül), visszavonás. A kulcs formája
+  `wzs_` + 32 véletlen karakter; maga a kulcs sehol nincs tárolva.
+- Globális guard: `X-API-Key: <kulcs>` vagy `Authorization: Bearer <kulcs>`.
+  A szintek egymásra épülnek (`admin` ⊃ `control` ⊃ `read`). Szint
+  megjelölése nélkül egy végpont `admin` szintet kér, így egy elfelejtett
+  jelölés a biztonságos irányba hibázik. A `/health` és a `/docs` nyilvános.
+- `GET/POST /api-keys`, `DELETE /api-keys/:id` (visszavonás); az utolsó
+  aktív admin kulcs nem vonható vissza (409).
+- CLI: `npm run cli -- apikey:create --name <név> --level <szint>`,
+  `apikey:list`, `apikey:revoke <id>`.
+- Swagger UI a `/docs`, OpenAPI a `/docs-json` címen, „Authorize” gombbal;
+  internet nélkül is működik.
+- E2E tesztek futásonként saját, ideiglenes SQLite adatbázissal.
 
 **Kész, ha:** kulcs nélkül minden 401, `read` kulccsal nem lehet kapcsolni,
-a visszavont kulcs azonnal megszűnik.
+a visszavont kulcs azonnal megszűnik. ✅
 
 ### 3. Szobák és izzók adminisztrációja
 
@@ -77,7 +91,6 @@ a visszavont kulcs azonnal megszűnik.
 - `POST /discovery/scan`: felderítés; az új izzók szoba nélkül kerülnek be.
   Ha egy ismert MAC új IP-n jelentkezik, az IP automatikusan frissül.
 - `POST /bulbs/:id/identify`: az izzó néhányszor felvillan, majd visszaáll.
-- Swagger UI a `/docs` címen.
 
 **Kész, ha:** a 4 szoba (nappali 2, étkező 6, konyha 2, háló 2 izzó) az API-n
 keresztül felvehető, és az izzók felderítéssel és villogtatással szobához
@@ -128,6 +141,14 @@ egész lakásra.
   `status` mezőre). A `/health` API-kulcs nélkül is elérhető marad, és
   503-mal válaszol, ha az adatbázis nem érhető el.
 - Napi adatbázismentés (`sqlite3 .backup`).
+- Telepítéskor és frissítéskor: `npm ci` (generálja a Prisma klienst),
+  `npm run db:deploy` (migrációk), `npm run build`, majd PM2 újraindítás. A
+  `prisma` CLI ezért futásidejű függőség. A PM2 munkakönyvtára a projekt
+  gyökere legyen, mert az adatbázis útvonala ahhoz viszonyított.
+- A Pi-n ellenőrizendő: a `better-sqlite3` előre fordított bináris
+  (linux-arm64, Node 24) települ-e, vagy fordítani kell (build-essential).
+- Prisma Studio a Pi-n: `npm run db:studio`, elérés SSH-alagúton
+  (`ssh -L 5555:localhost:5555 <pi>`).
 - Kiadás: `develop` → `main` merge, verziótag, a Pi a `main`-t futtatja.
 
 **Kész, ha:** a Pi újraindítása után magától elindul, és a régi Express-es

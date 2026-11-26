@@ -132,3 +132,7 @@ dist
 # Config files
 config/*
 !config/default.json
+
+# Wizsla
+data/
+src/generated/

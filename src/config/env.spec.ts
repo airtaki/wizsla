@@ -7,7 +7,14 @@ describe('validateEnv', () => {
       HOST: '0.0.0.0',
       PORT: 3000,
       LOG_LEVEL: 'log',
+      DATABASE_URL: 'file:./data/wizsla.db',
     });
+  });
+
+  it('rejects a DATABASE_URL that is not a SQLite file', () => {
+    expect(() =>
+      validateEnv({ DATABASE_URL: 'mysql://localhost/wizsla' }),
+    ).toThrow(/DATABASE_URL/);
   });
 
   it('coerces PORT from a string', () => {

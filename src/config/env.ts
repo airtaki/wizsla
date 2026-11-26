@@ -22,6 +22,11 @@ export const envSchema = z.object({
   HOST: z.string().min(1).default('0.0.0.0'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   LOG_LEVEL: z.enum(LOG_LEVELS).default('log'),
+  /** SQLite file, relative to the working directory. Keep the default in sync with prisma.config.ts. */
+  DATABASE_URL: z
+    .string()
+    .startsWith('file:', 'must be a SQLite file URL (file:...)')
+    .default('file:./data/wizsla.db'),
 });
 
 export type Env = z.infer<typeof envSchema>;

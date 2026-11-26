@@ -1,0 +1,65 @@
+// Wizsla database schema.
+// After editing: `npm run db:migrate -- --name <change>` (creates a migration
+// and regenerates the client).
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Room {
+  id        Int      @id @default(autoincrement())
+  /// Display name, e.g. "Nappali".
+  name      String
+  /// API-friendly unique name, e.g. "nappali".
+  slug      String   @unique
+  sortOrder Int      @default(0)
+  bulbs     Bulb[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bulb {
+  id         Int       @id @default(autoincrement())
+  /// Stable identity of the bulb (12 lowercase hex digits). The IP may change.
+  mac        String    @unique
+  name       String
+  slug       String    @unique
+  ip         String
+  port       Int       @default(38899)
+  roomId     Int?
+  room       Room?     @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  moduleName String?
+  fwVersion  String?
+  /// rgb | tunable-white | dimmable-white | socket | unknown
+  kind       String    @default("unknown")
+  kelvinMin  Int?
+  kelvinMax  Int?
+  enabled    Boolean   @default(true)
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([roomId])
+  @@index([ip])
+}
+
+model ApiKey {
+  id         Int       @id @default(autoincrement())
+  /// Who uses the key, e.g. "Telefon" or "AI agent".
+  name       String
+  /// First characters of the key, shown in listings to recognise it.
+  prefix     String    @unique
+  /// SHA-256 of the full key; the key itself is never stored.
+  hash       String    @unique
+  /// read | control | admin
+  level      String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+}
