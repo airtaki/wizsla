@@ -31,29 +31,38 @@ adatbázisban vannak.
 - Env-validáció induláskor (zod), `/health` végpont.
 - Lint, típusellenőrzés, unit és e2e tesztek, build; CI minden pushra.
 
-### 1. Wiz protokoll réteg
+### 1. Wiz protokoll réteg ✅
 
-NestJS-től független rész.
+NestJS-től független rész (`src/wiz/`).
 
-- `UdpTransport`: időkorlát (~1 mp), 2 újrapróbálkozás; izzónként sorba
-  rendezett parancsok.
-- `WizClient`: `getPilot`, `setPilot`, `getSystemConfig`, felderítés broadcasttal.
-- Scene-katalógus konstansként a kódban; képességek a modulnévből
-  (RGB / hangolható fehér / dimmelhető).
-- UDP izzószimulátor a tesztekhez.
+- `UdpTransport`: időkorlát (1 mp), 2 újrapróbálkozás, a korábbi próbálkozásra
+  késve érkező választ is elfogadja; izzónként sorba rendezett parancsok.
+- `WizClient`: `getPilot`, `setPilot`, `getSystemConfig`, `getModelConfig`,
+  felderítés broadcasttal (csak olvas, nem regisztrál semmit). A paramétereket
+  küldés előtt, a válaszokat érkezéskor ellenőrzi.
+- Scene-katalógus konstansként a kódban; képességek a modulnévből, a Kelvin-
+  tartomány a `getModelConfig` válaszából.
+- UDP izzószimulátor a tesztekhez (`test/support/fake-wiz-bulb.ts`).
+- Kézi próbához: `npm run wiz -- discover | status <ip> | config <ip> | set <ip> <json>`
+  (előtte `npm run build`).
 
-**Kész, ha:** a szimulátoros tesztek lefedik a sikeres választ, az
-időtúllépést, a hibás választ és a nem támogatott képességet, és egy valódi
-izzón is működik a kézi próba.
+**Valódi izzókon mért eredmények (2026-11-26):**
 
-**Valódi izzón ellenőrizendő:** modellenkénti Kelvin-tartomány.
+- 12 izzó, mind RGB (`ESP25_SHRGB_01`, `ESP24_SHRGB_01`, `ESP24_SHRGBC_01`),
+  firmware 1.38.0.
+- Kelvin-tartomány mindegyiken 2200–6500.
+- `minDimLevel` 7 izzón 1, ötön 10; a döntés szerint a fényerő 10–100 marad.
+- 12 izzó állapotának párhuzamos lekérdezése ~50 ms.
+- `setPilot` valódi izzón kipróbálva (`192.168.10.156`: be, 30%, 2700 K);
+  a visszaolvasott állapot egyezett.
 
 ### 2. Adatbázis és hitelesítés
 
 - Prisma + SQLite, migrációk.
 - `Room`: név, slug, sorrend.
 - `Bulb`: név, MAC (egyedi, ez az azonosító), IP, port, szoba (opcionális),
-  modell, képességek, `enabled`, `lastSeenAt`.
+  modell, firmware, képességek (a `getSystemConfig` és a `getModelConfig`
+  válaszából), `enabled`, `lastSeenAt`.
 - `ApiKey`: név, hash, előtag, jogosultságok, utolsó használat, visszavonás.
 - Globális guard, végpontonkénti jogosultság; CLI parancs az első admin
   kulcshoz; Swagger „Authorize”. Kivétel a `/health`, ami az Uptime Kuma
