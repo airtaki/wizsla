@@ -3,6 +3,7 @@ import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module.js';
 import { BulbsModule } from './bulbs/bulbs.module.js';
 import { PrismaErrorFilter, WizErrorFilter } from './common/error-filters.js';
+import { ControlModule } from './control/control.module.js';
 import { CoreModule } from './core.module.js';
 import { DiscoveryModule } from './discovery/discovery.module.js';
 import { HealthModule } from './health/health.module.js';
@@ -20,6 +21,7 @@ import { WizModule } from './wiz/wiz.module.js';
     BulbsModule,
     DiscoveryModule,
     StateModule,
+    ControlModule,
   ],
   providers: [
     {

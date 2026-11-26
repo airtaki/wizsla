@@ -45,6 +45,17 @@ describe('WizClient (against a simulated bulb)', () => {
       });
     });
 
+    it('keeps the Kelvin of a static white scene', async () => {
+      // Shape copied from a real bulb in Warm White.
+      bulb.state = { state: true, sceneId: 11, temp: 2700, dimming: 100 };
+
+      await expect(client.getPilot(bulb.address)).resolves.toMatchObject({
+        mode: 'scene',
+        sceneId: 11,
+        colorTemp: 2700,
+      });
+    });
+
     it('reports colour mode with white channels', async () => {
       bulb.state = { state: true, r: 255, g: 128, b: 0, c: 0, w: 10 };
 

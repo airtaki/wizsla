@@ -136,28 +136,50 @@ lekérdezési cikluson belül megjelenik, a lekapcsolt izzó `online: false`. �
 (Szimulált izzókkal tesztelve; a fali kapcsolós próbát érdemes egyszer
 élőben is megnézni.)
 
-### 5. Vezérlés
+### 5. Vezérlés ✅
 
-- `PATCH /bulbs/:id/state`, `PATCH /rooms/:id/state`, `PATCH /state`, közös DTO-val:
+- `PATCH /bulbs/:ref/state`, `PATCH /rooms/:ref/state`, `PATCH /state`, közös DTO-val:
 
   ```jsonc
   {
     "on": true,
     "brightness": 30, // vagy "brightnessDelta": -10
     "colorTemp": 2700, // vagy "colorTempDelta": -300
-    "color": "#FF8800", // vagy "scene": "sunset"
+    "color": "#FF8800", // vagy "scene": "sunset" (id, slug vagy név)
+    "warmWhite": 40, // csak color mellé, "coldWhite" is
     "speed": 100, // dinamikus scene-ekhez
   }
   ```
 
-- A `color`, `colorTemp` és `scene` közül egyszerre csak egy; a delta és az
-  abszolút érték kizárja egymást.
-- Szobaszinten párhuzamos végrehajtás, izzónkénti eredménnyel (siker /
-  offline / nem támogatott) és az új állapottal.
-- Parancsnapló: melyik kulcs, mikor, mit.
+- A `color`, `colorTemp` / `colorTempDelta` és `scene` közül egyszerre csak
+  egy; a delta és az abszolút érték kizárja egymást; az `on: false` mellé
+  semmi más nem adható. Bármi beállítása be is kapcsolja a lámpát.
+- A delta izzónként a saját aktuális állapotához adódik (előbb kiolvassuk),
+  és a határokon belül marad: fényerő 10–100, Kelvin az izzó tartománya. A
+  `colorTempDelta` fehér módban és statikus fehér scene-ben (Warm White,
+  Daylight…) működik, mert ezek is jelentik a Kelvin-értéket; színes módban
+  és dinamikus scene-ben `unsupported`, a javaslat: adj meg `colorTemp`-et.
+- Izzónként képességellenőrzés (`kind`, Kelvin-tartomány, scene-támogatás).
+- Szobaszinten és az egész lakásra párhuzamos végrehajtás, izzónkénti
+  eredménnyel (`ok` / `offline` / `unsupported` / `failed`), összesítéssel
+  és a parancs utáni friss állapottal; mindig 200. Egy izzónál a hiba HTTP
+  kód: 400 nem támogatott, 504 nem válaszol, 502 hibás válasz, 409 letiltott.
+- A letiltott izzók kimaradnak a szoba- és lakásszintű parancsokból.
+- A parancs után az állapotot azonnal visszaolvassuk és a gyorsítótárba írjuk.
+- `GET /scenes` (read): a beépített scene-ek és hogy melyik izzótípus tudja.
+- Parancsnapló (`CommandLog` tábla, új migráció): melyik kulcs, mikor, mire,
+  mit, hány izzón sikerült, mennyi ideig tartott; 90 napig őrizzük.
+  `GET /commands?limit=` (admin). A PM2 naplóba is kerül egy sor parancsonként.
 
 **Kész, ha:** a régi wizsla minden funkciója működik izzóra, szobára és az
-egész lakásra.
+egész lakásra. ✅ (be, ki, fényerő, sebesség, scene, RGB + hideg/meleg fehér,
+színhőmérséklet; a régi `status` helyett a 4. fázis állapotvégpontjai.)
+
+Élesben ellenőrizve mind a 12 izzón (egy izzó, egy 3 izzós tesztszoba, az
+egész lakás): minden lépés 12/12 sikeres, 0,1–0,6 mp alatt; utána minden izzó
+visszaállt a teszt előtti állapotára. Az éles teszt hozta ki, hogy a
+statikus fehér scene-ek jelentik a Kelvin-értéket; ezt az állapot és a delta
+azóta használja.
 
 ### 6. Üzemeltetés a Pi-n
 

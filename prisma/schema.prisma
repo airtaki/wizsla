@@ -62,4 +62,27 @@ model ApiKey {
   createdAt  DateTime  @default(now())
   lastUsedAt DateTime?
   revokedAt  DateTime?
+  commands   CommandLog[]
+}
+
+/// One control command: who sent what to which bulbs, and how it went.
+model CommandLog {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  apiKeyId   Int?
+  apiKey     ApiKey?  @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+  /// Name of the key at the time, kept even if the key goes away.
+  keyName    String
+  /// bulb | room | all
+  target     String
+  targetId   Int?
+  targetName String
+  /// The command as received, JSON.
+  command    String
+  /// Bulbs addressed, and how many of them carried it out.
+  bulbs      Int
+  succeeded  Int
+  durationMs Int
+
+  @@index([createdAt])
 }

@@ -26,16 +26,22 @@ describe('summarize', () => {
         bulb(true, { on: true, brightness: 40, colorTemp: 2700 }),
         bulb(true, { on: true, brightness: 61, colorTemp: 3000 }),
         bulb(true, { on: true, brightness: 100, mode: 'scene' }),
+        bulb(true, {
+          on: true,
+          brightness: 100,
+          mode: 'scene',
+          colorTemp: 2700,
+        }),
         bulb(true, { on: false, brightness: 10, colorTemp: 6500 }),
         bulb(false, { on: true, brightness: 100, colorTemp: 6500 }),
         bulb(null, null),
       ]),
     ).toEqual({
-      total: 6,
-      online: 4,
-      on: 3,
-      brightness: 67,
-      colorTemp: 2850,
+      total: 7,
+      online: 5,
+      on: 4,
+      brightness: 75,
+      colorTemp: 2800,
     });
   });
 

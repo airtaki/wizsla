@@ -37,6 +37,7 @@ export async function createTestApp(): Promise<TestApp> {
       return (await apiKeys.create(name, level)).key;
     },
     async reset() {
+      await prisma.commandLog.deleteMany();
       await prisma.bulb.deleteMany();
       await prisma.room.deleteMany();
       await prisma.apiKey.deleteMany();

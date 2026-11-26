@@ -16,7 +16,7 @@ import type {
   StateSummaryDto,
 } from './state.dto.js';
 
-type BulbRow = Bulb & {
+export type BulbRow = Bulb & {
   room: { id: number; name: string; slug: string } | null;
 };
 
@@ -103,7 +103,37 @@ export class StateService implements OnModuleDestroy {
     await this.ensureChecked(bulbs, true);
   }
 
-  private loadBulbs(where: { id?: number; roomId?: number } = {}) {
+  /**
+   * Reads a bulb right after a command. A check already under way may have
+   * started before the command, so it is waited for and a new one is made.
+   */
+  async readAfterCommand(bulb: BulbRow): Promise<BulbStateDto> {
+    await this.inFlight.get(bulb.id);
+    await this.check(bulb);
+    return this.toDto(bulb);
+  }
+
+  /** A fresh reading of the bulb, or `null` if it does not answer. */
+  async freshState(bulb: BulbRow): Promise<BulbState | null> {
+    const reading = await this.check(bulb);
+    return reading.online ? reading.state : null;
+  }
+
+  /** Records that a command could not reach the bulb. */
+  markUnreachable(bulb: BulbRow, error: string): void {
+    this.readings.set(
+      bulb.id,
+      this.failed(this.readings.get(bulb.id), new Date(), error),
+    );
+  }
+
+  /** The bulb as the state endpoints show it, from the last reading. */
+  describe(bulb: BulbRow): BulbStateDto {
+    return this.toDto(bulb);
+  }
+
+  /** Bulbs with their room, in name order. */
+  loadBulbs(where: { id?: number; roomId?: number } = {}): Promise<BulbRow[]> {
     return this.prisma.bulb
       .findMany({ where, include: bulbInclude })
       .then((rows) => sortByName(rows as BulbRow[]));
@@ -234,11 +264,8 @@ export function summarize(bulbs: BulbStateDto[]): StateSummaryDto {
     online: online.length,
     on: lit.length,
     brightness: average(lit.map((b) => b.state?.brightness)),
-    colorTemp: average(
-      lit
-        .filter((b) => b.state?.mode === 'white')
-        .map((b) => b.state?.colorTemp),
-    ),
+    // White mode and static white scenes; dynamic scenes report no Kelvin.
+    colorTemp: average(lit.map((b) => b.state?.colorTemp)),
   };
 }
 

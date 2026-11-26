@@ -36,7 +36,7 @@ export class LightStateDto {
   /** 10–100 %. The bulb keeps it while switched off. */
   brightness?: number;
 
-  /** Kelvin, in `white` mode. */
+  /** Kelvin, in `white` mode and in static white scenes such as Warm White. */
   colorTemp?: number;
 
   /** In `color` mode. */
@@ -104,7 +104,7 @@ export class StateSummaryDto {
   @ApiProperty({ type: Number, nullable: true })
   brightness!: number | null;
 
-  /** Average colour temperature of the bulbs that are on in `white` mode. */
+  /** Average colour temperature of the lit bulbs that report one. */
   @ApiProperty({ type: Number, nullable: true })
   colorTemp!: number | null;
 }

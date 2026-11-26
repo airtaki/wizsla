@@ -118,6 +118,11 @@ export function toBulbState(pilot: z.infer<typeof pilotSchema>): BulbState {
     state.mode = 'scene';
     state.sceneId = pilot.sceneId;
     state.speed = pilot.speed;
+    // Static white scenes (Warm White, Daylight...) report their Kelvin;
+    // dynamic ones do not.
+    if (pilot.temp !== undefined && pilot.temp > 0) {
+      state.colorTemp = pilot.temp;
+    }
   } else if (pilot.temp !== undefined && pilot.temp > 0) {
     state.mode = 'white';
     state.colorTemp = pilot.temp;

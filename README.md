@@ -88,6 +88,41 @@ known state, so check `online` before trusting it. Summaries count the
 bulbs, how many are online and lit, and average the brightness and colour
 temperature of the lit ones.
 
+## Controlling lights
+
+A `control` key is enough. The same command body works on one bulb, a room or
+every bulb:
+
+| Endpoint                   | Target                       |
+| -------------------------- | ---------------------------- |
+| `PATCH /bulbs/{ref}/state` | One bulb                     |
+| `PATCH /rooms/{ref}/state` | Every enabled bulb of a room |
+| `PATCH /state`             | Every enabled bulb           |
+
+```jsonc
+{
+  "on": true,
+  "brightness": 30, // 10–100, or "brightnessDelta": -10
+  "colorTemp": 2700, // Kelvin, or "colorTempDelta": -300
+  "color": "#FF8800", // or "scene": "sunset" (see GET /scenes)
+  "speed": 100, // 10–200, for dynamic scenes
+}
+```
+
+- Setting anything but `on` also switches the light on; `{"on": false}`
+  switches it off and takes nothing else.
+- Only one of `color`, `colorTemp` / `colorTempDelta` and `scene` at a time.
+  `color` can take `coldWhite` and `warmWhite` (0–255) as well.
+- Deltas are added to each bulb's own current value and kept within its
+  limits. `colorTempDelta` works in white mode and in static white scenes
+  (Warm White, Daylight…), not on a colour or a dynamic scene.
+- A room or the whole home always answers 200, with a `status` per bulb
+  (`ok`, `offline`, `unsupported`, `failed`), a summary, and each bulb's state
+  read back after the command. A single bulb answers 400 if it cannot do it,
+  504 if it does not answer, 409 if it is disabled.
+- Every command is logged for 90 days: `GET /commands` (admin) shows who sent
+  what, when, and how many bulbs carried it out.
+
 ## Configuration
 
 Only infrastructure settings come from the environment (see `.env.example`):
