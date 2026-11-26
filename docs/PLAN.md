@@ -181,9 +181,9 @@ visszaállt a teszt előtti állapotára. Az éles teszt hozta ki, hogy a
 statikus fehér scene-ek jelentik a Kelvin-értéket; ezt az állapot és a delta
 azóta használja.
 
-### 6. Üzemeltetés a Pi-n
+### 6. Üzemeltetés a Pi-n ✅
 
-A repó oldala kész; a Pi-n végzendő lépések: [DEPLOY.md](DEPLOY.md).
+Telepítés és üzemeltetés: [DEPLOY.md](DEPLOY.md).
 
 - ✅ Naplózás: a Nest beépített naplózója, `LOG_FORMAT=json` esetén soronként
   egy JSON objektum. A tervezett pino helyett, mert a Nest 12 ezt már
@@ -203,12 +203,16 @@ A repó oldala kész; a Pi-n végzendő lépések: [DEPLOY.md](DEPLOY.md).
 - ✅ `scripts/deploy.sh`: Node-verzió ellenőrzés, `main` fast-forward,
   mentés a migrációk előtt, `npm ci`, `db:deploy`, build,
   `pm2 startOrReload`, `pm2 save`, `/health` megvárása.
-- A Pi-n: első telepítés, Uptime Kuma monitor, a `better-sqlite3` és a
-  Prisma migrációs bináris ellenőrzése (Debian 11, OpenSSL 1.1). A
-  `pm2-taki.service` már engedélyezve van.
-- Kiadás: `develop` → `main` merge, verziótag, a Pi a `main`-t futtatja.
+- ✅ A Pi-n: első telepítés a `/opt/wizsla` könyvtárba; a `better-sqlite3`
+  és a Prisma migrációk Debian 11-en is működnek. A felderítéshez a
+  `.env`-ben `WIZ_BROADCAST_ADDRESS=192.168.11.255` kell: a Pi és az izzók
+  közös `/23`-as hálózatban vannak, az alapértelmezett broadcast viszont a
+  vezetékes (192.168.8.x) hálózatra menne ki. Mind a 12 izzó online.
+- ✅ Kiadás: `v2.0.0` (`develop` → `main` merge, verziótag), a Pi a
+  `main`-t futtatja.
+- Uptime Kuma monitor a `/health`-re (lásd [DEPLOY.md](DEPLOY.md)).
 
-**Kész, ha:** a Pi újraindítása után magától elindul. (A régi Express-es
+**Kész, ha:** a Pi újraindítása után magától elindul. ✅ (A régi Express-es
 szolgáltatás élesben sosem futott, így nincs mit leállítani.)
 
 ### Később

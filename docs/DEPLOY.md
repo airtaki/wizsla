@@ -38,6 +38,15 @@ nano .env        # NODE_ENV=production, PORT=3200, a többi maradhat
 ./scripts/deploy.sh
 ```
 
+A `jerry` vezetékesen és Wi-Fin is a hálózaton van, az izzók viszont csak a
+Wi-Fi hálózatban (`192.168.10.0/23`). Az alapértelmezett
+`255.255.255.255` broadcast a vezetékes kapcsolaton menne ki, ezért a
+`.env`-ben a Wi-Fi hálózat broadcast címe szerepel:
+
+```bash
+WIZ_BROADCAST_ADDRESS=192.168.11.255
+```
+
 A szkript telepíti a függőségeket, létrehozza az adatbázist
 (`/opt/wizsla/data/wizsla.db`), lefordítja a kódot, elindítja PM2 alatt `wizsla` néven,
 és megvárja, amíg a `/health` válaszol.
@@ -142,9 +151,9 @@ Majd a böngészőben `http://localhost:5555`.
 
 ## Hibaelhárítás
 
-| Tünet                                 | Teendő                                                                   |
-| ------------------------------------- | ------------------------------------------------------------------------ |
-| `pm2 list` szerint újra és újra indul | `pm2 logs wizsla`: többnyire hibás `.env` (a hibás változót megnevezi)   |
-| Egy izzó tartósan `online: false`     | áram van rajta? Ha igen: `POST /discovery/scan` (új IP-t kaphatott)      |
-| Felderítés nem talál izzót            | a Pi és az izzók ugyanabban a hálózatban vannak? `WIZ_BROADCAST_ADDRESS` |
-| `/health` 503                         | `pm2 logs wizsla`; lemez megtelt? (`df -h`)                              |
+| Tünet                                 | Teendő                                                                 |
+| ------------------------------------- | ---------------------------------------------------------------------- |
+| `pm2 list` szerint újra és újra indul | `pm2 logs wizsla`: többnyire hibás `.env` (a hibás változót megnevezi) |
+| Egy izzó tartósan `online: false`     | áram van rajta? Ha igen: `POST /discovery/scan` (új IP-t kaphatott)    |
+| Felderítés nem talál izzót            | `WIZ_BROADCAST_ADDRESS` a Wi-Fi hálózaté? (`192.168.11.255`)           |
+| `/health` 503                         | `pm2 logs wizsla`; lemez megtelt? (`df -h`)                            |
