@@ -22,7 +22,8 @@ AI agent külön rendszerek lesznek, amelyek ezt az API-t hívják.
 | Bemeneti formátum | Egyetlen, egyértelmű formátum: számok és `#RRGGBB`. A régi `"50%"` / `"FF"` / `"3000K"` változatok megszűnnek      |
 
 Az env csak infrastruktúra-beállításokat tartalmaz (port, host, naplózási
-szint, adatbázis elérési útja, a Wiz hálózati időzítések). Szobák, izzók és kulcsok kizárólag az
+szint, adatbázis elérési útja, a Wiz hálózati időzítések és lekérdezési
+időköz). Szobák, izzók és kulcsok kizárólag az
 adatbázisban vannak.
 
 ## Fázisok
@@ -108,16 +109,32 @@ regisztrálta, helyes modellel, firmware-rel és színhőmérséklet-tartománny
 keresztül felvehető, és az izzók felderítéssel és villogtatással szobához
 rendelhetők. ✅ (A szobák felvétele és az izzók beosztása kézi lépés, a Swagger UI-ból.)
 
-### 4. Állapot
+### 4. Állapot ✅
 
-- Izzónként memóriában tartott állapot: be/ki, fényerő, szín / Kelvin / scene,
-  `online`, `lastUpdated`.
-- Háttérlekérdezés 15–30 mp-enként, és minden parancs után azonnal.
-- `GET /state`, `GET /rooms/:id/state` (összesítéssel), `GET /bulbs/:id/state`;
-  `?refresh=true` friss lekérdezéshez.
+- Izzónként memóriában tartott utolsó leolvasás: be/ki, fényerő, Kelvin /
+  RGB / scene (névvel), RSSI, `online`, `stateAt` (mikor olvastuk),
+  `checkedAt` (mikor kérdeztük utoljára), és hiba esetén `error`.
+- Háttérlekérdezés induláskor, majd `WIZ_POLL_INTERVAL_MS` (alapból 20 mp)
+  időközönként; a következő kör csak az előző végeztével indul. `0` kikapcsolja.
+  A letiltott (`enabled: false`) izzókat nem kérdezzük.
+- `GET /state` (szobák és szoba nélküli izzók), `GET /rooms/:ref/state`,
+  `GET /bulbs/:ref/state`; `?refresh=true` friss lekérdezéshez. Egy izzót
+  egyszerre csak egy kérés kérdez, az átfedő kérések osztoznak a válaszon.
+- Összesítés szobánként és összesen: hány izzó van, hány online, hány ég,
+  az égők átlagos fényereje és (fehér módban) színhőmérséklete.
+- Offline izzónál az utolsó ismert állapot megmarad (`online: false`,
+  régebbi `stateAt`). Ha egy izzó IP-jén másik MAC válaszol (DHCP-csere),
+  az izzó offline lesz, a hibaüzenet felderítést javasol.
+- `lastSeenAt` az adatbázisban legfeljebb 5 percenként frissül.
+- A „minden parancs után azonnal” frissítés az 5. fázissal jön.
+
+Valós hálózaton ellenőrizve: 12 izzó friss lekérdezése ~0,26 mp, a
+memóriából adott válasz ~0,02 mp.
 
 **Kész, ha:** a Wiz appban vagy a fali kapcsolóval végzett változás egy
-lekérdezési cikluson belül megjelenik, a lekapcsolt izzó `online: false`.
+lekérdezési cikluson belül megjelenik, a lekapcsolt izzó `online: false`. ✅
+(Szimulált izzókkal tesztelve; a fali kapcsolós próbát érdemes egyszer
+élőben is megnézni.)
 
 ### 5. Vezérlés
 

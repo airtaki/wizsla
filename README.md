@@ -70,6 +70,24 @@ Rooms and bulbs can be addressed by id or slug: `/rooms/2` and
 `/rooms/etkezo` are the same. `GET /bulbs?room=none` lists the bulbs that are
 not in a room yet.
 
+## Reading state
+
+The service reads every bulb right after startup and then every
+`WIZ_POLL_INTERVAL_MS`, and answers from memory:
+
+| Endpoint                 | Returns                                         |
+| ------------------------ | ----------------------------------------------- |
+| `GET /state`             | Every room with its bulbs, plus unassigned ones |
+| `GET /rooms/{ref}/state` | One room, with a summary                        |
+| `GET /bulbs/{ref}/state` | One bulb                                        |
+
+Add `?refresh=true` to ask the bulbs first. Each bulb shows `online`, its
+last reported `state` (on/off, brightness, colour temperature, RGB or scene,
+Wi-Fi signal), `stateAt` and `checkedAt`. An offline bulb keeps its last
+known state, so check `online` before trusting it. Summaries count the
+bulbs, how many are online and lit, and average the brightness and colour
+temperature of the lit ones.
+
 ## Configuration
 
 Only infrastructure settings come from the environment (see `.env.example`):
@@ -86,6 +104,7 @@ Only infrastructure settings come from the environment (see `.env.example`):
 | `WIZ_TIMEOUT_MS`        | `1000`                  | How long to wait for a bulb's answer                |
 | `WIZ_RETRIES`           | `2`                     | Resends before a bulb counts as unreachable         |
 | `WIZ_DISCOVERY_MS`      | `2000`                  | How long discovery listens for answers              |
+| `WIZ_POLL_INTERVAL_MS`  | `20000`                 | Background state polling; `0` turns it off          |
 
 Rooms, bulbs and API keys are stored in the database and managed through the
 API. Invalid configuration stops the service at startup.

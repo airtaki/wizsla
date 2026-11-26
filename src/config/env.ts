@@ -38,6 +38,14 @@ export const envSchema = z.object({
   WIZ_RETRIES: z.coerce.number().int().min(0).max(10).default(2),
   /** How long discovery collects answers. */
   WIZ_DISCOVERY_MS: z.coerce.number().int().min(100).max(30000).default(2000),
+  /** How often every bulb's state is read in the background; 0 turns it off. */
+  WIZ_POLL_INTERVAL_MS: z.coerce
+    .number()
+    .int()
+    .refine((ms) => ms === 0 || (ms >= 5000 && ms <= 600000), {
+      message: 'must be 0 (off) or between 5000 and 600000',
+    })
+    .default(20000),
 });
 
 export type Env = z.infer<typeof envSchema>;

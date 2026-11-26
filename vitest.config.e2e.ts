@@ -28,6 +28,8 @@ export default defineConfig({
       WIZ_TIMEOUT_MS: '100',
       WIZ_RETRIES: '1',
       WIZ_DISCOVERY_MS: '300',
+      // Tests ask for state explicitly; no background traffic.
+      WIZ_POLL_INTERVAL_MS: '0',
     },
   },
 });

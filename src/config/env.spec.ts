@@ -13,8 +13,27 @@ describe('validateEnv', () => {
       WIZ_TIMEOUT_MS: 1000,
       WIZ_RETRIES: 2,
       WIZ_DISCOVERY_MS: 2000,
+      WIZ_POLL_INTERVAL_MS: 20000,
     });
   });
+
+  it.each([['0'], ['5000'], ['600000']])(
+    'accepts WIZ_POLL_INTERVAL_MS %s',
+    (ms) => {
+      expect(
+        validateEnv({ WIZ_POLL_INTERVAL_MS: ms }).WIZ_POLL_INTERVAL_MS,
+      ).toBe(Number(ms));
+    },
+  );
+
+  it.each([['1000'], ['600001'], ['-1']])(
+    'rejects WIZ_POLL_INTERVAL_MS %s',
+    (ms) => {
+      expect(() => validateEnv({ WIZ_POLL_INTERVAL_MS: ms })).toThrow(
+        /WIZ_POLL_INTERVAL_MS/,
+      );
+    },
+  );
 
   it('rejects a broadcast address that is not IPv4', () => {
     expect(() => validateEnv({ WIZ_BROADCAST_ADDRESS: 'lan' })).toThrow(

@@ -7,6 +7,7 @@ import { CoreModule } from './core.module.js';
 import { DiscoveryModule } from './discovery/discovery.module.js';
 import { HealthModule } from './health/health.module.js';
 import { RoomsModule } from './rooms/rooms.module.js';
+import { StateModule } from './state/state.module.js';
 import { WizModule } from './wiz/wiz.module.js';
 
 @Module({
@@ -18,6 +19,7 @@ import { WizModule } from './wiz/wiz.module.js';
     RoomsModule,
     BulbsModule,
     DiscoveryModule,
+    StateModule,
   ],
   providers: [
     {
