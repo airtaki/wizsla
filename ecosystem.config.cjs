@@ -6,6 +6,10 @@ module.exports = {
     {
       name: 'wizsla',
       script: 'dist/main.js',
+      // The Node that runs this file: the `pm2` command in the deploying
+      // shell (nvm's Node 24), not the one the PM2 daemon was started with
+      // at boot, which may be older and also serves other apps.
+      interpreter: process.execPath,
       // The database and backup paths are relative to the project directory.
       cwd: __dirname,
       // One process: the bulb queues and the state cache live in memory.

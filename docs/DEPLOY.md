@@ -6,10 +6,21 @@ a `main` ágról. Ez a leírás az első telepítést, a frissítést és a napi
 
 ## Előfeltételek
 
-- Node 24 (a `.nvmrc` szerint; a telepítő szkript ellenőrzi).
+- Node 24 (a `.nvmrc` szerint; a telepítő szkript ellenőrzi), nvm-mel:
+  `nvm install 24 && nvm alias default 24`.
 - `git`, `curl`, PM2 és `pm2-logrotate` (ezek már megvannak).
 - A `better-sqlite3`-nak linux-arm64-re van előre fordított bináris; ha az
   `npm ci` mégis fordítani kezd és elakad: `sudo apt install build-essential`.
+
+### Node-verzió és PM2
+
+A PM2 háttérfolyamatát a `pm2-taki.service` indítja a rendszer Node-jával
+(22), és ugyanez futtatja az Uptime Kumát is. A Wizsla ettől függetlenül
+azon a Node-on fut, amelyikkel a `deploy.sh` futott (nvm, 24): az
+`ecosystem.config.cjs` ennek az útvonalát adja meg értelmezőként. A
+`/health` válasz `node` mezője mutatja, min fut ténylegesen; ha eltér, a
+szkript figyelmeztet. nvm-es Node-frissítés után a szkript magától átállítja
+a Wizslát az új Node-ra.
 
 ## Első telepítés
 
@@ -40,14 +51,8 @@ A kulcsot tedd el (jelszókezelőbe), majd a Swagger UI-ban
 2. `POST /rooms` – a négy szoba.
 3. `POST /bulbs/{ref}/identify`, majd `PATCH /bulbs/{ref}` – név és szoba.
 
-Végül, hogy a Pi újraindítása után is elinduljon:
-
-```bash
-pm2 startup     # kiír egy sudo-s parancsot: azt futtasd le
-pm2 save
-```
-
-(Ha az Uptime Kumához már futtattad a `pm2 startup`-ot, elég a `pm2 save`.)
+A Pi újraindítása után is elindul: a `pm2-taki.service` már engedélyezve
+van (`pm2 startup` nem kell), a szkript pedig `pm2 save`-et futtat.
 
 ## Frissítés
 
@@ -81,6 +86,7 @@ normális állapot); a `bulbs.online` mezőre külön monitor is tehető.
 {
   "status": "ok",
   "version": "2.0.0",
+  "node": "v24.22.3",
   "uptime": 3600,
   "database": "ok",
   "bulbs": { "total": 12, "online": 12 },

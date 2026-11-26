@@ -35,6 +35,7 @@ describe('Health and backups (e2e)', () => {
       expect(res.body).toEqual({
         status: 'ok',
         version: expect.stringMatching(/^\d+\.\d+\.\d+/),
+        node: process.version,
         uptime: expect.any(Number),
         database: 'ok',
         bulbs: { total: 0, online: 0 },

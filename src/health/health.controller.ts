@@ -25,6 +25,9 @@ export class HealthStatus {
 
   version!: string;
 
+  /** The Node.js version the service runs on, e.g. `v24.22.3`. */
+  node!: string;
+
   /** Seconds since the service started. */
   uptime!: number;
 
@@ -79,6 +82,7 @@ export class HealthController {
       return {
         status: 'error',
         version,
+        node: process.version,
         uptime,
         database: 'error',
         bulbs: null,
@@ -86,6 +90,14 @@ export class HealthController {
       };
     }
 
-    return { status: 'ok', version, uptime, database: 'ok', bulbs, lastBackup };
+    return {
+      status: 'ok',
+      version,
+      node: process.version,
+      uptime,
+      database: 'ok',
+      bulbs,
+      lastBackup,
+    };
   }
 }

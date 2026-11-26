@@ -193,6 +193,9 @@ A repó oldala kész; a Pi-n végzendő lépések: [DEPLOY.md](DEPLOY.md).
   503 és `"status": "error"`. API-kulcs nélkül elérhető.
 - ✅ PM2: `ecosystem.config.cjs` (`fork`, 1 példány, munkakönyvtár a projekt
   gyökere, exponenciális újraindítási késleltetés, 300 MB memóriakorlát).
+  Az értelmező a telepítő shell Node-ja (nvm, 24), mert a PM2 démon a
+  rendszer Node 22-jével indul és az Uptime Kumát is futtatja; a `/health`
+  `node` mezője mutatja a ténylegeset.
 - ✅ Napi adatbázismentés a szolgáltatáson belül (`VACUUM INTO`, nem kell
   hozzá `sqlite3` CLI), a legutóbbi 14 marad; induláskor és óránként nézi,
   így újraindítás miatt nem marad ki és nem duplázódik. Kézzel:
@@ -200,12 +203,13 @@ A repó oldala kész; a Pi-n végzendő lépések: [DEPLOY.md](DEPLOY.md).
 - ✅ `scripts/deploy.sh`: Node-verzió ellenőrzés, `main` fast-forward,
   mentés a migrációk előtt, `npm ci`, `db:deploy`, build,
   `pm2 startOrReload`, `pm2 save`, `/health` megvárása.
-- A Pi-n: első telepítés, `pm2 startup` / `pm2 save`, Uptime Kuma monitor,
-  a `better-sqlite3` bináris ellenőrzése.
+- A Pi-n: első telepítés, Uptime Kuma monitor, a `better-sqlite3` és a
+  Prisma migrációs bináris ellenőrzése (Debian 11, OpenSSL 1.1). A
+  `pm2-taki.service` már engedélyezve van.
 - Kiadás: `develop` → `main` merge, verziótag, a Pi a `main`-t futtatja.
 
-**Kész, ha:** a Pi újraindítása után magától elindul, és a régi Express-es
-szolgáltatás leállítható.
+**Kész, ha:** a Pi újraindítása után magától elindul. (A régi Express-es
+szolgáltatás élesben sosem futott, így nincs mit leállítani.)
 
 ### Később
 
