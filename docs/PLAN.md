@@ -1,25 +1,28 @@
 # Wizsla 2 – fejlesztési terv
 
 A Wizsla kizárólag a Wiz okos izzók vezérléséért felel: helyi REST API a
-belső hálózaton, Raspberry Pi-n futtatva. Más eszközök, automatizmusok és az
-AI agent külön rendszerek lesznek, amelyek ezt az API-t hívják.
+belső hálózaton, Raspberry Pi-n futtatva. Más eszközök és az AI agent külön
+rendszerek lesznek, amelyek ezt az API-t hívják; a saját webes felület (7.
+fázis) is csak az API-n át éri el. Az automatizmusok később a Wizslán belül
+futnak.
 
 ## Döntések
 
-| Téma              | Döntés                                                                                                             |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Keretrendszer     | NestJS 12 (ESM), TypeScript 6, Node.js 24 LTS                                                                      |
-| Eszközök          | Vitest (unit + e2e), oxlint (típusalapú), Prettier, GitHub Actions                                                 |
-| Validáció         | HTTP-kérések: class-validator + globális `ValidationPipe`; env és izzóválaszok: zod                                |
-| Adatbázis         | SQLite + Prisma 7 (better-sqlite3 adapter); adminisztráció az API-n át, betekintés Prisma Studióval (SSH-alagúton) |
-| Telemetria        | Nincs: a Prisma CLI frissítésellenőrzése kikapcsolva (`CHECKPOINT_DISABLE=1`), NestJS Observe nincs                |
-| Hitelesítés       | API-kulcsok jogosultsági szintekkel: `read`, `control`, `admin`                                                    |
-| Futtatás a Pi-n   | PM2 natívan (konténer nélkül), fork módban, egyetlen példányban                                                    |
-| Monitorozás       | A meglévő Uptime Kuma figyeli a `/health` végpontot; külső telemetria nincs                                        |
-| Branchek          | `develop`: fejlesztés; `main`: production (a Pi-re kerülő kód)                                                     |
-| Régi kód          | `v1-express` tag                                                                                                   |
-| Fényerő           | 10–100                                                                                                             |
-| Bemeneti formátum | Egyetlen, egyértelmű formátum: számok és `#RRGGBB`. A régi `"50%"` / `"FF"` / `"3000K"` változatok megszűnnek      |
+| Téma              | Döntés                                                                                                               |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Keretrendszer     | NestJS 12 (ESM), TypeScript 6, Node.js 24 LTS                                                                        |
+| Eszközök          | Vitest (unit + e2e), oxlint (típusalapú), Prettier, GitHub Actions                                                   |
+| Validáció         | HTTP-kérések: class-validator + globális `ValidationPipe`; env és izzóválaszok: zod                                  |
+| Adatbázis         | SQLite + Prisma 7 (better-sqlite3 adapter); adminisztráció az API-n át, betekintés Prisma Studióval (SSH-alagúton)   |
+| Telemetria        | Nincs: a Prisma CLI frissítésellenőrzése kikapcsolva (`CHECKPOINT_DISABLE=1`), NestJS Observe nincs                  |
+| Hitelesítés       | API-kulcsok jogosultsági szintekkel: `read`, `control`, `admin`                                                      |
+| Futtatás a Pi-n   | PM2 natívan (konténer nélkül), fork módban, egyetlen példányban                                                      |
+| Monitorozás       | A meglévő Uptime Kuma figyeli a `/health` végpontot; külső telemetria nincs                                          |
+| Branchek          | `develop`: fejlesztés; `main`: production (a Pi-re kerülő kód)                                                       |
+| Régi kód          | `v1-express` tag                                                                                                     |
+| Fényerő           | 10–100                                                                                                               |
+| Bemeneti formátum | Egyetlen, egyértelmű formátum: számok és `#RRGGBB`. A régi `"50%"` / `"FF"` / `"3000K"` változatok megszűnnek        |
+| Felület           | PWA (Vite + React + TypeScript), csak az API-n át kommunikál; a Nest szolgálja ki a `/app` alatt; csak helyi hálózat |
 
 Az env csak infrastruktúra-beállításokat tartalmaz (port, host, naplózási
 szint, adatbázis elérési útja, a Wiz hálózati időzítések és lekérdezési
@@ -215,12 +218,86 @@ Telepítés és üzemeltetés: [DEPLOY.md](DEPLOY.md).
 **Kész, ha:** a Pi újraindítása után magától elindul. ✅ (A régi Express-es
 szolgáltatás élesben sosem futott, így nincs mit leállítani.)
 
+### 7. Admin- és vezérlőfelület (PWA)
+
+Mobilra szabott, asztali böngészőből is jól kezelhető webapp, csak saját és
+családi használatra (iOS), kizárólag a helyi hálózaton. A főképernyőre
+tehető, saját ikonnal, teljes képernyőn indul.
+
+Mérlegelt lehetőségek: natív iOS app (fizetős fejlesztői fiók, külön
+kódbázis, asztali gépen nem fut), HomeKit-híd (az Apple TV otthoni központ
+lehetne, de ritkán használt; a szobák és izzók kétszer lennének
+nyilvántartva), Apple Parancsok (kiegészítésnek jó, admin felületnek nem).
+A PWA egy kódbázissal fedi le a mobilt és az asztalt, telepítés nélkül
+frissül.
+
+**Felépítés:**
+
+- A webapp statikus fájlokból áll, a `web/` mappában (ugyanebben a repóban).
+  Minden adatot a nyilvános REST API-n kér, API-kulccsal, mint bármely más
+  kliens. A Nest csak kiszolgálja a fájlokat a `/app` alatt, a `/` oda irányít
+  át; ugyanarról a címről jön, mint az API, ezért CORS nem kell, és nincs
+  külön PM2-folyamat.
+- Vite + React + TypeScript. Az API-kliens típusai a Swagger leírásából
+  generálódnak (openapi-typescript), így az API változását a fordítás jelzi.
+  Adatlekérés és gyorsítótár: TanStack Query. Komponensek: Tailwind és
+  Radix alapú, shadcn/ui stílusú elemek.
+- Belépés API-kulccsal. A kulcs szintje dönti el, mi látszik: `control`
+  kulccsal csak a vezérlés, `admin` kulccsal a beállítások is. Kulcs
+  létrehozásakor QR-kód, amellyel a családtag beléphet (a kulcs az URL `#`
+  utáni részében van, a szerverre nem megy el).
+- Állapot: amíg a lap látszik, 5 másodpercenként `GET /state` (memóriából
+  jön, izzót nem terhel). A csúszkák húzás közben kb. 300 ms-onként és
+  elengedéskor küldenek; a felület rögtön az új értéket mutatja, hiba esetén
+  visszaáll.
+- Dizájn: letisztult, semleges színek egy kiemelőszínnel; világos/sötét mód
+  az iPhone szerint; legalább 44 pt-os érintési felületek; notch és home
+  indicator figyelembevétele. Mobilon alsó fülsáv, asztalon oldalsáv.
+
+**Képernyők:**
+
+- Otthon: szobakártyák (be/ki, fényerő, „3/6 ég”, a fény valódi színe kis
+  jelzőpontként), felül „Minden ki”.
+- Szoba: közös fényerő, színhőmérséklet, szín, jelenetek; alatta az izzók
+  egyenként, az offline izzók szürkék.
+- Izzó: ugyanezek egy izzóra, térerővel és online állapottal.
+- Jelenetek: rács színátmenetes csempékkel; cél: izzó, szoba vagy az egész
+  lakás; sebesség, ahol a jelenet engedi.
+- Beállítások (csak admin kulccsal): szobák (létrehozás, átnevezés, sorrend
+  húzással, törlés); izzók (felderítés, eredmény új / frissült / hiányzik
+  bontásban, a szoba nélküliek legfelül, „Azonosít” gomb és szobaválasztó,
+  átnevezés, engedélyezés); API-kulcsok (létrehozás QR-kóddal,
+  visszavonás); parancsnapló; rendszer (`/health`).
+
+**Lépések:**
+
+- 7.1 API: `GET /api-keys/me` (a kulcs neve és szintje, `read` szinttől), a
+  webapp kiszolgálása a `/app` alatt.
+- 7.2 Váz: `web/` projekt, típusos API-kliens, belépés, elrendezés, téma; a
+  build bekötése a `deploy.sh`-ba és a CI-ba.
+- 7.3 Vezérlés: Otthon, Szoba, Izzó, Jelenetek.
+- 7.4 Admin: szobák, felderítés és izzók, kulcsok QR-kóddal, napló,
+  rendszer.
+- 7.5 iOS és HTTPS: ikon, manifest, indítókép; HTTPS a meglévő
+  tanúsítvánnyal (a módját a tanúsítvány fajtája alapján döntjük el), így a
+  kulcs titkosítva utazik, és service worker is használható; családi
+  kulcsok; útmutató az Apple Parancsokhoz (gyors gombok a főképernyőn, a
+  widgetek között, a Vezérlőközpontban; a Siri nem beszél magyarul).
+
+**Kész, ha:** egy családi iPhone-on a főképernyő-ikonról teljes képernyőn
+indul, minden lámpa vezérelhető, és a napi adminisztrációhoz már nem kell a
+Swagger UI.
+
 ### Később
 
-- SSE (`GET /events`): élő állapotváltozások a mobil appnak.
+- SSE (`GET /events`): élő állapotváltozások a webappnak (a 7. fázis
+  lekérdezése helyett).
+- Automatizmusok: a Wizsla szerveroldali ütemezője, a webappban külön
+  füllel. Az iPhone-on futó Parancsok-automatizmusok csak kiegészítik.
 - Push alapú állapotfrissítés (`registration` / `syncPilot`), előbb valódi
   izzókon kipróbálva.
 - Saját presetek (pl. „Mozi”) az adatbázisban.
-- HTTPS Caddyvel.
 - Szoba-becenevek az AI agenthez.
 - Deploy folyamat a `main` branchről a PM2-be (külön tervezzük meg).
+- HomeKit-híd vagy natív iOS app, ha a PWA és a Parancsok kevésnek
+  bizonyulnak.
