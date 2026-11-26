@@ -39,6 +39,10 @@ npm run db:deploy
 step "Building"
 npm run build
 
+step "Building the web app"
+npm ci --prefix web --no-audit --no-fund
+npm run --prefix web build
+
 step "Restarting under PM2"
 # ecosystem.config.cjs pins the interpreter to this shell's Node. A reload
 # keeps the old interpreter, so after a Node upgrade the app is recreated.

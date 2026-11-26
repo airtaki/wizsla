@@ -1,0 +1,1808 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api-keys": {
+      "get": {
+        "operationId": "ApiKeysController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiKeyDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "API keys"
+        ]
+      },
+      "post": {
+        "operationId": "ApiKeysController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApiKeyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedApiKeyDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Creates a key. The response contains the full key, only this once.",
+        "tags": [
+          "API keys"
+        ]
+      }
+    },
+    "/api-keys/me": {
+      "get": {
+        "operationId": "ApiKeysController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentApiKeyDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "The key making this request: its name and level. Any valid key may ask,\nso a client can show only what the key is allowed to do.",
+        "tags": [
+          "API keys"
+        ]
+      }
+    },
+    "/api-keys/{id}": {
+      "delete": {
+        "operationId": "ApiKeysController_revoke",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Revokes a key. The last active admin key cannot be revoked.",
+        "tags": [
+          "API keys"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/state": {
+      "get": {
+        "operationId": "StateController_overview",
+        "parameters": [
+          {
+            "name": "refresh",
+            "required": false,
+            "in": "query",
+            "description": "Ask the bulbs now instead of answering from the last poll.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StateOverviewDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Every room and bulb, with summaries.",
+        "tags": [
+          "State"
+        ]
+      },
+      "patch": {
+        "operationId": "ControlController_all",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LightCommandDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupCommandResultDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Controls every enabled bulb, in a room or not.",
+        "tags": [
+          "Control"
+        ]
+      }
+    },
+    "/rooms/{ref}/state": {
+      "get": {
+        "operationId": "StateController_room",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Room id or slug",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "refresh",
+            "required": false,
+            "in": "query",
+            "description": "Ask the bulbs now instead of answering from the last poll.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomStateDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "State"
+        ]
+      },
+      "patch": {
+        "operationId": "ControlController_room",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Room id or slug",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LightCommandDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupCommandResultDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Controls every enabled bulb of a room at once. Always 200: check each\nbulb's `status`, or the summary.",
+        "tags": [
+          "Control"
+        ]
+      }
+    },
+    "/bulbs/{ref}/state": {
+      "get": {
+        "operationId": "StateController_bulb",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Bulb id or slug",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "refresh",
+            "required": false,
+            "in": "query",
+            "description": "Ask the bulbs now instead of answering from the last poll.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulbStateDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "State"
+        ]
+      },
+      "patch": {
+        "operationId": "ControlController_bulb",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Bulb id or slug",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LightCommandDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulbCommandResultDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Controls one bulb and returns its state read back afterwards. Errors:\n400 if the bulb cannot do it, 504 if it does not answer, 409 if it is\ndisabled.",
+        "tags": [
+          "Control"
+        ]
+      }
+    },
+    "/rooms": {
+      "get": {
+        "operationId": "RoomsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoomDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Every room with its bulbs, in display order.",
+        "tags": [
+          "Rooms"
+        ]
+      },
+      "post": {
+        "operationId": "RoomsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoomDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Rooms"
+        ]
+      }
+    },
+    "/rooms/{ref}": {
+      "get": {
+        "operationId": "RoomsController_get",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Room id or slug, e.g. 3 or \"nappali\"",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Rooms"
+        ]
+      },
+      "patch": {
+        "operationId": "RoomsController_update",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Room id or slug, e.g. 3 or \"nappali\"",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoomDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Rooms"
+        ]
+      },
+      "delete": {
+        "operationId": "RoomsController_remove",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Room id or slug, e.g. 3 or \"nappali\"",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Deletes the room. Its bulbs are kept, without a room.",
+        "tags": [
+          "Rooms"
+        ]
+      }
+    },
+    "/bulbs": {
+      "get": {
+        "operationId": "BulbsController_list",
+        "parameters": [
+          {
+            "name": "room",
+            "required": false,
+            "in": "query",
+            "description": "Room id or slug; \"none\" lists bulbs without a room",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BulbDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Bulbs"
+        ]
+      },
+      "post": {
+        "operationId": "BulbsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBulbDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulbDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Registers a bulb by IP. Usually discovery does this instead.",
+        "tags": [
+          "Bulbs"
+        ]
+      }
+    },
+    "/bulbs/{ref}": {
+      "get": {
+        "operationId": "BulbsController_get",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Bulb id or slug, e.g. 4 or \"nappali-1\"",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulbDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Bulbs"
+        ]
+      },
+      "patch": {
+        "operationId": "BulbsController_update",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Bulb id or slug, e.g. 4 or \"nappali-1\"",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBulbDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulbDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Bulbs"
+        ]
+      },
+      "delete": {
+        "operationId": "BulbsController_remove",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Bulb id or slug, e.g. 4 or \"nappali-1\"",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Bulbs"
+        ]
+      }
+    },
+    "/bulbs/{ref}/identify": {
+      "post": {
+        "operationId": "BulbsController_identify",
+        "parameters": [
+          {
+            "name": "ref",
+            "required": true,
+            "in": "path",
+            "description": "Bulb id or slug, e.g. 4 or \"nappali-1\"",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Blinks the bulb three times, then leaves it as it was.",
+        "tags": [
+          "Bulbs"
+        ]
+      }
+    },
+    "/discovery/scan": {
+      "post": {
+        "operationId": "DiscoveryController_scan",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryResultDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Searches the network for Wiz bulbs (takes about two seconds). New bulbs\nare registered without a room; known bulbs get their current IP.",
+        "tags": [
+          "Discovery"
+        ]
+      }
+    },
+    "/scenes": {
+      "get": {
+        "operationId": "ControlController_scenes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SceneDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "The built-in Wiz scenes and which bulbs can play them.",
+        "tags": [
+          "Control"
+        ]
+      }
+    },
+    "/commands": {
+      "get": {
+        "operationId": "ControlController_commands",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "How many entries to return, newest first (1–500, default 50).",
+            "schema": {
+              "minimum": 1,
+              "maximum": 500,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommandLogDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Recent commands, newest first.",
+        "tags": [
+          "Control"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Wizsla",
+    "description": "Local REST API for Wiz smart bulbs.",
+    "version": "2",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "api-key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "schemas": {
+      "ApiKeyDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "enum": [
+              "read",
+              "control",
+              "admin"
+            ],
+            "type": "string"
+          },
+          "lastUsedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "revokedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "prefix": {
+            "type": "string",
+            "description": "First characters of the key, to recognise it."
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "level",
+          "lastUsedAt",
+          "revokedAt",
+          "id",
+          "name",
+          "prefix",
+          "createdAt"
+        ]
+      },
+      "CurrentApiKeyDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "enum": [
+              "read",
+              "control",
+              "admin"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "level",
+          "id",
+          "name"
+        ]
+      },
+      "CreateApiKeyDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "enum": [
+              "read",
+              "control",
+              "admin"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Who will use the key, e.g. \"Telefon\" or \"AI agent\".",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "level",
+          "name"
+        ]
+      },
+      "CreatedApiKeyDto": {
+        "type": "object",
+        "properties": {
+          "apiKey": {
+            "$ref": "#/components/schemas/ApiKeyDto"
+          },
+          "key": {
+            "type": "string",
+            "description": "The full key. It is shown only now; store it safely."
+          }
+        },
+        "required": [
+          "apiKey",
+          "key"
+        ]
+      },
+      "HealthBulbs": {
+        "type": "object",
+        "properties": {}
+      },
+      "HealthStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "error"
+            ]
+          },
+          "database": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "error"
+            ]
+          },
+          "bulbs": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HealthBulbs"
+              }
+            ]
+          },
+          "lastBackup": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "status",
+          "database",
+          "bulbs",
+          "lastBackup"
+        ]
+      },
+      "StateSummaryDto": {
+        "type": "object",
+        "properties": {
+          "brightness": {
+            "type": "number",
+            "nullable": true,
+            "description": "Average brightness of the bulbs that are on."
+          },
+          "colorTemp": {
+            "type": "number",
+            "nullable": true,
+            "description": "Average colour temperature of the lit bulbs that report one."
+          },
+          "total": {
+            "type": "number",
+            "description": "Bulbs counted, disabled ones included."
+          },
+          "online": {
+            "type": "number"
+          },
+          "on": {
+            "type": "number",
+            "description": "Online bulbs that are switched on."
+          }
+        },
+        "required": [
+          "brightness",
+          "colorTemp",
+          "total",
+          "online",
+          "on"
+        ]
+      },
+      "BulbRoomDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "RgbDto": {
+        "type": "object",
+        "properties": {
+          "r": {
+            "type": "number"
+          },
+          "g": {
+            "type": "number"
+          },
+          "b": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "r",
+          "g",
+          "b"
+        ]
+      },
+      "SceneRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "LightStateDto": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "description": "`white` (colour temperature), `color` (RGB), or a built-in `scene`.",
+            "enum": [
+              "white",
+              "color",
+              "scene",
+              "unknown"
+            ],
+            "type": "string"
+          },
+          "on": {
+            "type": "boolean"
+          },
+          "brightness": {
+            "type": "number",
+            "description": "10–100 %. The bulb keeps it while switched off."
+          },
+          "colorTemp": {
+            "type": "number",
+            "description": "Kelvin, in `white` mode and in static white scenes such as Warm White."
+          },
+          "color": {
+            "description": "In `color` mode.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RgbDto"
+              }
+            ]
+          },
+          "coldWhite": {
+            "type": "number",
+            "description": "Cold and warm white channels (0–255) mixed into `color`."
+          },
+          "warmWhite": {
+            "type": "number"
+          },
+          "scene": {
+            "description": "In `scene` mode.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SceneRefDto"
+              }
+            ]
+          },
+          "speed": {
+            "type": "number",
+            "description": "Scene animation speed, 10–200 %."
+          },
+          "rssi": {
+            "type": "number",
+            "description": "Wi-Fi signal strength in dBm; below about −80 the bulb may drop out."
+          }
+        },
+        "required": [
+          "mode",
+          "on"
+        ]
+      },
+      "BulbStateDto": {
+        "type": "object",
+        "properties": {
+          "room": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BulbRoomDto"
+              }
+            ]
+          },
+          "online": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Whether the bulb answered the last check. `null` for a disabled bulb that\nhas not been checked since the service started."
+          },
+          "state": {
+            "nullable": true,
+            "description": "The last state the bulb reported. Kept while the bulb is offline, so\ncheck `online` and `stateAt` before trusting it.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LightStateDto"
+              }
+            ]
+          },
+          "stateAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When `state` was read."
+          },
+          "checkedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When the bulb was last asked, whether or not it answered."
+          },
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Disabled bulbs are not polled."
+          },
+          "error": {
+            "type": "string",
+            "description": "Why the last check failed."
+          }
+        },
+        "required": [
+          "room",
+          "online",
+          "state",
+          "stateAt",
+          "checkedAt",
+          "id",
+          "name",
+          "slug",
+          "enabled"
+        ]
+      },
+      "RoomStateDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/StateSummaryDto"
+          },
+          "bulbs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulbStateDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "summary",
+          "bulbs"
+        ]
+      },
+      "StateOverviewDto": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "description": "Every bulb together.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StateSummaryDto"
+              }
+            ]
+          },
+          "rooms": {
+            "description": "Rooms in display order, each with its bulbs.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomStateDto"
+            }
+          },
+          "unassigned": {
+            "description": "Bulbs that are not in a room.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulbStateDto"
+            }
+          }
+        },
+        "required": [
+          "summary",
+          "rooms",
+          "unassigned"
+        ]
+      },
+      "RoomBulbDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "RoomDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "bulbs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomBulbDto"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "sortOrder",
+          "bulbs",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateRoomDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name, e.g. \"Nappali\".",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "slug": {
+            "type": "string",
+            "description": "Lowercase letters, digits and hyphens, at least one letter. Derived from\nthe name when omitted (\"Étkező\" → \"etkezo\").",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "sortOrder": {
+            "type": "number",
+            "description": "Position in listings, ascending.",
+            "minimum": 0,
+            "maximum": 9999
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateRoomDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name, e.g. \"Nappali\".",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "slug": {
+            "type": "string",
+            "description": "Lowercase letters, digits and hyphens, at least one letter. Derived from\nthe name when omitted (\"Étkező\" → \"etkezo\").",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "sortOrder": {
+            "type": "number",
+            "description": "Position in listings, ascending.",
+            "minimum": 0,
+            "maximum": 9999
+          }
+        }
+      },
+      "BulbDto": {
+        "type": "object",
+        "properties": {
+          "room": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BulbRoomDto"
+              }
+            ]
+          },
+          "moduleName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fwVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "rgb",
+              "tunable-white",
+              "dimmable-white",
+              "socket",
+              "unknown"
+            ]
+          },
+          "kelvinMin": {
+            "type": "number",
+            "nullable": true
+          },
+          "kelvinMax": {
+            "type": "number",
+            "nullable": true
+          },
+          "lastSeenAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "number"
+          },
+          "mac": {
+            "type": "string",
+            "description": "12 lowercase hex digits; the stable identity of the bulb."
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "ip": {
+            "type": "string"
+          },
+          "port": {
+            "type": "number"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "room",
+          "moduleName",
+          "fwVersion",
+          "kind",
+          "kelvinMin",
+          "kelvinMax",
+          "lastSeenAt",
+          "id",
+          "mac",
+          "name",
+          "slug",
+          "ip",
+          "port",
+          "enabled",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateBulbDto": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string",
+            "description": "IPv4 address of the bulb. Its MAC and model are read from the bulb."
+          },
+          "port": {
+            "type": "number",
+            "description": "UDP port; only simulators use something other than 38899.",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "name": {
+            "type": "string",
+            "description": "Defaults to \"Wiz <last 6 digits of the MAC>\".",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "slug": {
+            "type": "string",
+            "description": "Derived from the name when omitted.",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "roomId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "ip"
+        ]
+      },
+      "UpdateBulbDto": {
+        "type": "object",
+        "properties": {
+          "roomId": {
+            "type": "number",
+            "nullable": true,
+            "description": "The room to move the bulb to; `null` removes it from its room."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Disabled bulbs are kept but left out of polling and room commands."
+          },
+          "ip": {
+            "type": "string",
+            "description": "A new address; the bulb answering there must have the same MAC."
+          },
+          "port": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 65535
+          }
+        }
+      },
+      "DiscoveredBulbDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "`new`: registered now, without a room. `moved`: known bulb with a new\nIP, updated. `known`: known bulb at the same IP.",
+            "enum": [
+              "new",
+              "moved",
+              "known"
+            ],
+            "type": "string"
+          },
+          "previousIp": {
+            "type": "string",
+            "description": "The IP the bulb had before, for `moved` bulbs."
+          },
+          "bulb": {
+            "$ref": "#/components/schemas/BulbDto"
+          }
+        },
+        "required": [
+          "status",
+          "bulb"
+        ]
+      },
+      "FailedDiscoveryDto": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string"
+          },
+          "mac": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ip",
+          "mac",
+          "error"
+        ]
+      },
+      "DiscoveryResultDto": {
+        "type": "object",
+        "properties": {
+          "bulbs": {
+            "description": "Bulbs that answered, in IP order.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiscoveredBulbDto"
+            }
+          },
+          "failed": {
+            "description": "Bulbs that answered the broadcast but not the follow-up questions.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FailedDiscoveryDto"
+            }
+          },
+          "missing": {
+            "description": "Registered bulbs that did not answer (off at the switch, or gone).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulbDto"
+            }
+          }
+        },
+        "required": [
+          "bulbs",
+          "failed",
+          "missing"
+        ]
+      },
+      "LightCommandDto": {
+        "type": "object",
+        "properties": {
+          "scene": {
+            "description": "Scene id or name, e.g. 3, \"sunset\" or \"Warm White\"; see GET /scenes.",
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "example": "sunset"
+          },
+          "on": {
+            "type": "boolean"
+          },
+          "brightness": {
+            "type": "number",
+            "description": "10–100 %.",
+            "minimum": 10,
+            "maximum": 100
+          },
+          "brightnessDelta": {
+            "type": "number",
+            "description": "Change in percentage points, e.g. -10; the result stays within 10–100.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "colorTemp": {
+            "type": "number",
+            "description": "Kelvin; must fit the bulb's range (2200–6500 for most colour bulbs).",
+            "minimum": 1000,
+            "maximum": 10000
+          },
+          "colorTempDelta": {
+            "type": "number",
+            "description": "Change in Kelvin, e.g. -300 for warmer; the result stays within the\nbulb's range. Works in white mode and in static white scenes (Warm\nWhite, Daylight...), not in colour mode or dynamic scenes.",
+            "minimum": -9000,
+            "maximum": 9000
+          },
+          "color": {
+            "type": "string",
+            "description": "RGB colour as `#RRGGBB`.",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "coldWhite": {
+            "type": "number",
+            "description": "Cold white channel (0–255) mixed into `color`.",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "warmWhite": {
+            "type": "number",
+            "description": "Warm white channel (0–255) mixed into `color`.",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "speed": {
+            "type": "number",
+            "description": "Animation speed of dynamic scenes, 10–200 %.",
+            "minimum": 10,
+            "maximum": 200
+          }
+        }
+      },
+      "BulbCommandResultDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "`ok`: done. `offline`: the bulb did not answer. `unsupported`: the bulb\ncannot do this (e.g. colour on a white bulb). `failed`: the bulb refused\nor answered wrongly.",
+            "enum": [
+              "ok",
+              "offline",
+              "unsupported",
+              "failed"
+            ],
+            "type": "string"
+          },
+          "error": {
+            "type": "string",
+            "description": "Why it was not done."
+          },
+          "bulb": {
+            "description": "The bulb with its state read back after the command.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BulbStateDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "bulb"
+        ]
+      },
+      "CommandSummaryDto": {
+        "type": "object",
+        "properties": {
+          "bulbs": {
+            "type": "number",
+            "description": "Enabled bulbs addressed; disabled bulbs are left out."
+          },
+          "ok": {
+            "type": "number"
+          },
+          "offline": {
+            "type": "number"
+          },
+          "unsupported": {
+            "type": "number"
+          },
+          "failed": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bulbs",
+          "ok",
+          "offline",
+          "unsupported",
+          "failed"
+        ]
+      },
+      "GroupCommandResultDto": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/CommandSummaryDto"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulbCommandResultDto"
+            }
+          }
+        },
+        "required": [
+          "summary",
+          "results"
+        ]
+      },
+      "SceneDto": {
+        "type": "object",
+        "properties": {
+          "supportedKinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "rgb",
+                "tunable-white",
+                "dimmable-white"
+              ]
+            }
+          },
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "speedAdjustable": {
+            "type": "boolean",
+            "description": "Whether `speed` can be set."
+          },
+          "dimmable": {
+            "type": "boolean",
+            "description": "Whether `brightness` can be set."
+          }
+        },
+        "required": [
+          "supportedKinds",
+          "id",
+          "name",
+          "slug",
+          "speedAdjustable",
+          "dimmable"
+        ]
+      },
+      "CommandLogDto": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "bulb",
+              "room",
+              "all"
+            ]
+          },
+          "targetId": {
+            "type": "number",
+            "nullable": true
+          },
+          "command": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The command as it was sent."
+          },
+          "id": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "keyName": {
+            "type": "string"
+          },
+          "targetName": {
+            "type": "string"
+          },
+          "bulbs": {
+            "type": "number"
+          },
+          "succeeded": {
+            "type": "number"
+          },
+          "durationMs": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "target",
+          "targetId",
+          "command",
+          "id",
+          "createdAt",
+          "keyName",
+          "targetName",
+          "bulbs",
+          "succeeded",
+          "durationMs"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "api-key": []
+    }
+  ]
+}

@@ -263,7 +263,9 @@ frissül.
 - Izzó: ugyanezek egy izzóra, térerővel és online állapottal.
 - Jelenetek: rács színátmenetes csempékkel; cél: izzó, szoba vagy az egész
   lakás; sebesség, ahol a jelenet engedi.
-- Beállítások (csak admin kulccsal): szobák (létrehozás, átnevezés, sorrend
+- Beállítások: a fiók (név, jogosultság, kijelentkezés) mindenkinek, mert
+  kijelentkezni minden kulccsal kell tudni; a többi csak admin kulccsal:
+  szobák (létrehozás, átnevezés, sorrend
   húzással, törlés); izzók (felderítés, eredmény új / frissült / hiányzik
   bontásban, a szoba nélküliek legfelül, „Azonosít” gomb és szobaválasztó,
   átnevezés, engedélyezés); API-kulcsok (létrehozás QR-kóddal,
@@ -273,8 +275,11 @@ frissül.
 
 - ✅ 7.1 API: `GET /api-keys/me` (a kulcs neve és szintje, `read` szinttől), a
   webapp kiszolgálása a `/app` alatt.
-- 7.2 Váz: `web/` projekt, típusos API-kliens, belépés, elrendezés, téma; a
-  build bekötése a `deploy.sh`-ba és a CI-ba.
+- ✅ 7.2 Váz: `web/` projekt, típusos API-kliens, belépés, elrendezés, téma; a
+  build bekötése a `deploy.sh`-ba és a CI-ba. Az API-típusok a backendből
+  generált OpenAPI-dokumentumból készülnek (`npm run openapi`, majd
+  `npm run --prefix web api`); a CI ellenőrzi, hogy naprakészek. Lint és
+  formázás a gyökérből, a webappra is.
 - 7.3 Vezérlés: Otthon, Szoba, Izzó, Jelenetek.
 - 7.4 Admin: szobák, felderítés és izzók, kulcsok QR-kóddal, napló,
   rendszer.

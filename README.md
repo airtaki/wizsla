@@ -31,12 +31,34 @@ The last but one command prints an admin API key once; store it safely.
 
 ## Web app
 
-The admin and control web app (in progress, see [docs/PLAN.md](docs/PLAN.md),
-phase 7) is a static build in `web/dist`, served under `/app`. It holds no
-data and needs no key to load; it talks to the API only, with the key the
-user signs in with. Paths without a file extension return `index.html`, so
-the app's own routes survive a reload. Without a build, `/app` is off and the
-log says so.
+The admin and control web app lives in `web/` (Vite, React, TypeScript,
+Tailwind; its plan is phase 7 in [docs/PLAN.md](docs/PLAN.md)). Its build,
+`web/dist`, is served under `/app`, and `/` redirects there. The files hold
+no data and need no key to load; the app talks to the API only, with the key
+the user signs in with. Paths without a file extension return `index.html`,
+so the app's own routes survive a reload. Without a build, `/app` is off and
+the log says so.
+
+Development, with the API running (`npm run start:dev`):
+
+```bash
+npm ci --prefix web
+npm run --prefix web dev     # http://localhost:5173/app/
+```
+
+Vite forwards every path outside `/app` to the API (the port comes from
+`.env`), so the app calls it on its own origin, as in production.
+
+The API client is typed from the API's OpenAPI document. After changing an
+endpoint or DTO, regenerate both files (CI fails if they are out of date):
+
+```bash
+npm run build && npm run openapi && npm run --prefix web api
+```
+
+A sign-in link carries the key after `#` (`/app/#key=wzs_…`), which the
+browser never sends to the server; the app stores the key and removes it
+from the address.
 
 ## Authentication
 
@@ -180,11 +202,16 @@ Prisma's update checks are disabled (`CHECKPOINT_DISABLE=1`).
 | `npm run start:prod` | Run the compiled build                         |
 | `npm run cli`        | Administration commands (after a build)        |
 | `npm run wiz`        | Talk to bulbs directly (after a build)         |
+| `npm run openapi`    | Write `web/openapi.json` (after a build)       |
 | `npm run lint`       | Lint with oxlint (type-aware)                  |
 | `npm run typecheck`  | Type-check sources and tests                   |
 | `npm test`           | Unit tests (Vitest)                            |
 | `npm run test:e2e`   | End-to-end HTTP tests, on a throwaway database |
 | `npm run format`     | Format with Prettier                           |
+
+The web app has its own scripts: `npm run --prefix web <script>` with `dev`,
+`build`, `typecheck`, `test` and `api` (regenerate the API types). Lint and
+formatting run from the root and cover it too.
 
 ## Running on the Pi
 

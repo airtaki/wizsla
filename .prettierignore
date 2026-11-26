@@ -1,1 +1,3 @@
 src/generated/
+web/src/api/schema.d.ts
+web/openapi.json

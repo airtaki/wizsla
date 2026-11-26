@@ -1,11 +1,22 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "ignorePatterns": ["src/generated/**"],
+  "ignorePatterns": ["src/generated/**", "web/src/api/schema.d.ts"],
   "rules": {
     "typescript/no-explicit-any": "off",
     "typescript/no-floating-promises": "error"
   },
   "env": {
     "node": true
-  }
+  },
+  "overrides": [
+    {
+      "files": ["web/**"],
+      "plugins": ["typescript", "react", "jsx-a11y"],
+      "env": { "browser": true, "node": false },
+      "rules": {
+        "react/rules-of-hooks": "error",
+        "react/exhaustive-deps": "error"
+      }
+    }
+  ]
 }

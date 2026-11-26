@@ -57,7 +57,9 @@ Ezután az első admin kulcs és az izzók:
 cd /opt/wizsla && npm run cli -- apikey:create --name "Admin" --level admin
 ```
 
-A kulcsot tedd el (jelszókezelőbe), majd a Swagger UI-ban
+A kulcsot tedd el (jelszókezelőbe). A webapp a `http://jerry:3200/` címen
+érhető el (a `/app`-ra irányít), ezzel a kulccsal lehet belépni. Amíg a
+webappban nincs adminfelület, a Swagger UI-ban
 (`http://jerry:3200/docs`, vagy `http://192.168.8.89:3200/docs`):
 
 1. `POST /discovery/scan` – felveszi az összes izzót.
@@ -77,8 +79,9 @@ a Pi-n:
 ```
 
 Lépései: a `main` lehúzása (csak fast-forward), adatbázismentés a migrációk
-előtt, `npm ci`, `npm run db:deploy`, `npm run build`,
-`pm2 startOrReload`, `pm2 save`, végül a `/health` megvárása. Ha a Pi-n
+előtt, `npm ci`, `npm run db:deploy`, `npm run build`, a webapp fordítása
+(`web/`: `npm ci`, `npm run build`), `pm2 startOrReload`, `pm2 save`, végül a
+`/health` megvárása. Ha a Pi-n
 helyi módosítás van a repóban, a szkript leáll, és nem ír felül semmit.
 
 ## Felügyelet (Uptime Kuma)
