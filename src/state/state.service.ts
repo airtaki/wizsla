@@ -127,6 +127,11 @@ export class StateService implements OnModuleDestroy {
     );
   }
 
+  /** Whether the bulb answered its last check; `null` if never checked. */
+  isOnline(bulbId: number): boolean | null {
+    return this.readings.get(bulbId)?.online ?? null;
+  }
+
   /** The bulb as the state endpoints show it, from the last reading. */
   describe(bulb: BulbRow): BulbStateDto {
     return this.toDto(bulb);

@@ -183,23 +183,25 @@ azóta használja.
 
 ### 6. Üzemeltetés a Pi-n
 
-- Strukturált naplózás (pino); `/health` adatbázissal és az elérhető izzók
-  számával.
-- PM2: `ecosystem.config.cjs` a repóban (a csomag ESM, ezért `.cjs`),
-  `exec_mode: 'fork'`, `instances: 1`; `pm2-logrotate`; `pm2 startup` és
-  `pm2 save`, hogy újraindítás után is elinduljon.
-- Uptime Kuma monitor a `/health` végpontra („HTTP(s) – Json Query”, a
-  `status` mezőre). A `/health` API-kulcs nélkül is elérhető marad, és
-  503-mal válaszol, ha az adatbázis nem érhető el.
-- Napi adatbázismentés (`sqlite3 .backup`).
-- Telepítéskor és frissítéskor: `npm ci` (generálja a Prisma klienst),
-  `npm run db:deploy` (migrációk), `npm run build`, majd PM2 újraindítás. A
-  `prisma` CLI ezért futásidejű függőség. A PM2 munkakönyvtára a projekt
-  gyökere legyen, mert az adatbázis útvonala ahhoz viszonyított.
-- A Pi-n ellenőrizendő: a `better-sqlite3` előre fordított bináris
-  (linux-arm64, Node 24) települ-e, vagy fordítani kell (build-essential).
-- Prisma Studio a Pi-n: `npm run db:studio`, elérés SSH-alagúton
-  (`ssh -L 5555:localhost:5555 <pi>`).
+A repó oldala kész; a Pi-n végzendő lépések: [DEPLOY.md](DEPLOY.md).
+
+- ✅ Naplózás: a Nest beépített naplózója, `LOG_FORMAT=json` esetén soronként
+  egy JSON objektum. A tervezett pino helyett, mert a Nest 12 ezt már
+  függőség nélkül tudja (pino, pino-http, nestjs-pino nélkül).
+- ✅ `/health`: verzió, uptime, adatbázis, engedélyezett / online izzók
+  (memóriából, izzót nem kérdez), utolsó mentés ideje; adatbázishiba esetén
+  503 és `"status": "error"`. API-kulcs nélkül elérhető.
+- ✅ PM2: `ecosystem.config.cjs` (`fork`, 1 példány, munkakönyvtár a projekt
+  gyökere, exponenciális újraindítási késleltetés, 300 MB memóriakorlát).
+- ✅ Napi adatbázismentés a szolgáltatáson belül (`VACUUM INTO`, nem kell
+  hozzá `sqlite3` CLI), a legutóbbi 14 marad; induláskor és óránként nézi,
+  így újraindítás miatt nem marad ki és nem duplázódik. Kézzel:
+  `npm run cli -- db:backup`.
+- ✅ `scripts/deploy.sh`: Node-verzió ellenőrzés, `main` fast-forward,
+  mentés a migrációk előtt, `npm ci`, `db:deploy`, build,
+  `pm2 startOrReload`, `pm2 save`, `/health` megvárása.
+- A Pi-n: első telepítés, `pm2 startup` / `pm2 save`, Uptime Kuma monitor,
+  a `better-sqlite3` bináris ellenőrzése.
 - Kiadás: `develop` → `main` merge, verziótag, a Pi a `main`-t futtatja.
 
 **Kész, ha:** a Pi újraindítása után magától elindul, és a régi Express-es

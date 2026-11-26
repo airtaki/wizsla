@@ -133,7 +133,10 @@ Only infrastructure settings come from the environment (see `.env.example`):
 | `HOST`                  | `0.0.0.0`               | Interface to listen on                              |
 | `PORT`                  | `3000`                  | HTTP port                                           |
 | `LOG_LEVEL`             | `log`                   | `verbose`, `debug`, `log`, `warn`, `error`, `fatal` |
+| `LOG_FORMAT`            | `text`                  | `text`, or `json` (one object per line)             |
 | `DATABASE_URL`          | `file:./data/wizsla.db` | SQLite file, relative to the working directory      |
+| `BACKUP_DIR`            | `./data/backups`        | Where the daily database backups go                 |
+| `BACKUP_KEEP`           | `14`                    | Daily backups to keep; `0` turns them off           |
 | `WIZ_BROADCAST_ADDRESS` | `255.255.255.255`       | Where discovery sends its broadcast                 |
 | `WIZ_PORT`              | `38899`                 | UDP port of the bulbs                               |
 | `WIZ_TIMEOUT_MS`        | `1000`                  | How long to wait for a bulb's answer                |
@@ -170,6 +173,14 @@ Prisma's update checks are disabled (`CHECKPOINT_DISABLE=1`).
 | `npm test`           | Unit tests (Vitest)                            |
 | `npm run test:e2e`   | End-to-end HTTP tests, on a throwaway database |
 | `npm run format`     | Format with Prettier                           |
+
+## Running on the Pi
+
+Wizsla runs under PM2 from `ecosystem.config.cjs`; `scripts/deploy.sh`
+updates it to the latest `main`, backs up the database, migrates, builds and
+reloads it. `GET /health` (no key) reports the database, the bulbs online and
+the last backup, for Uptime Kuma. The full guide, in Hungarian, is
+[docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Branches
 

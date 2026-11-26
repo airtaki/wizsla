@@ -22,11 +22,17 @@ export const envSchema = z.object({
   HOST: z.string().min(1).default('0.0.0.0'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   LOG_LEVEL: z.enum(LOG_LEVELS).default('log'),
+  /** `text` for people, `json` (one object per line) for log tools. */
+  LOG_FORMAT: z.enum(['text', 'json']).default('text'),
   /** SQLite file, relative to the working directory. Keep the default in sync with prisma.config.ts. */
   DATABASE_URL: z
     .string()
     .startsWith('file:', 'must be a SQLite file URL (file:...)')
     .default('file:./data/wizsla.db'),
+  /** Where the daily database backups go, relative to the working directory. */
+  BACKUP_DIR: z.string().min(1).default('./data/backups'),
+  /** How many daily backups to keep; 0 turns backups off. */
+  BACKUP_KEEP: z.coerce.number().int().min(0).max(365).default(14),
 
   /** Where discovery broadcasts; a subnet broadcast (e.g. 192.168.11.255) also works. */
   WIZ_BROADCAST_ADDRESS: z.ipv4().default('255.255.255.255'),

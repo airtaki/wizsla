@@ -5,6 +5,7 @@ import { BulbsModule } from './bulbs/bulbs.module.js';
 import { PrismaErrorFilter, WizErrorFilter } from './common/error-filters.js';
 import { ControlModule } from './control/control.module.js';
 import { CoreModule } from './core.module.js';
+import { BackupScheduler } from './database/backup.scheduler.js';
 import { DiscoveryModule } from './discovery/discovery.module.js';
 import { HealthModule } from './health/health.module.js';
 import { RoomsModule } from './rooms/rooms.module.js';
@@ -24,6 +25,7 @@ import { WizModule } from './wiz/wiz.module.js';
     ControlModule,
   ],
   providers: [
+    BackupScheduler,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({

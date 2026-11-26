@@ -5,6 +5,7 @@
  *   npm run cli -- apikey:create --name "Admin" --level admin
  *   npm run cli -- apikey:list
  *   npm run cli -- apikey:revoke <id>
+ *   npm run cli -- db:backup
  */
 import { parseArgs } from 'node:util';
 import { Module } from '@nestjs/common';
@@ -12,6 +13,7 @@ import { NestFactory } from '@nestjs/core';
 import { ACCESS_LEVELS, isAccessLevel } from '../auth/access-level.js';
 import { ApiKeysService } from '../auth/api-keys.service.js';
 import { CoreModule } from '../core.module.js';
+import { BackupService } from '../database/backup.service.js';
 
 @Module({
   imports: [CoreModule],
@@ -22,7 +24,8 @@ class CliModule {}
 const USAGE = `Usage:
   npm run cli -- apikey:create --name <name> --level <${ACCESS_LEVELS.join('|')}>
   npm run cli -- apikey:list
-  npm run cli -- apikey:revoke <id>`;
+  npm run cli -- apikey:revoke <id>
+  npm run cli -- db:backup`;
 
 async function main(argv: string[]): Promise<void> {
   const { positionals, values } = parseArgs({
@@ -78,6 +81,13 @@ async function main(argv: string[]): Promise<void> {
         }
         const revoked = await apiKeys.revoke(id);
         console.log(`Key #${revoked.id} "${revoked.name}" is revoked.`);
+        break;
+      }
+
+      case 'db:backup': {
+        // Works even with BACKUP_KEEP=0, e.g. before a migration.
+        const file = await app.get(BackupService).backup();
+        console.log(`Backed up to ${file}`);
         break;
       }
 
