@@ -210,7 +210,7 @@ Telepítés és üzemeltetés: [DEPLOY.md](DEPLOY.md).
   vezetékes (192.168.8.x) hálózatra menne ki. Mind a 12 izzó online.
 - ✅ Kiadás: `v2.0.0` (`develop` → `main` merge, verziótag), a Pi a
   `main`-t futtatja.
-- Uptime Kuma monitor a `/health`-re (lásd [DEPLOY.md](DEPLOY.md)).
+- ✅ Uptime Kuma monitor a `/health`-re (lásd [DEPLOY.md](DEPLOY.md)).
 
 **Kész, ha:** a Pi újraindítása után magától elindul. ✅ (A régi Express-es
 szolgáltatás élesben sosem futott, így nincs mit leállítani.)

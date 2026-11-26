@@ -88,7 +88,8 @@ helyi módosítás van a repóban, a szkript leáll, és nem ír felül semmit.
 - Típus: **HTTP(s) – Json Query**
 - URL: `http://127.0.0.1:3200/health` (ugyanazon a Pi-n fut)
 - Json Query: `status`, elvárt érték: `ok`
-- Intervallum: 60 mp
+- Intervallum: 60 mp, újrapróbálkozás: 2 (a telepítéskori rövid újraindítás
+  ne riasszon)
 
 A `/health` API-kulcs nélkül elérhető, csak az adatbázist és a memóriát
 nézi, izzót nem kérdez. Adatbázishiba esetén 503-mal és `"status": "error"`
