@@ -36,3 +36,12 @@ export class CreatedApiKeyDto {
   /** The full key. It is shown only now; store it safely. */
   key!: string;
 }
+
+/** The key that made the request. */
+export class CurrentApiKeyDto {
+  id!: number;
+  name!: string;
+
+  @ApiProperty({ enum: ACCESS_LEVELS })
+  level!: AccessLevel;
+}

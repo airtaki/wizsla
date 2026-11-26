@@ -1,14 +1,14 @@
-import type { INestApplication } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
-import type { App } from 'supertest/types.js';
 import { AppModule } from '../../src/app.module.js';
 import type { AccessLevel } from '../../src/auth/access-level.js';
 import { ApiKeysService } from '../../src/auth/api-keys.service.js';
 import { PrismaService } from '../../src/database/prisma.service.js';
 import { setupSwagger } from '../../src/swagger.js';
+import { setupWebApp } from '../../src/web.js';
 
 export interface TestApp {
-  app: INestApplication<App>;
+  app: NestExpressApplication;
   prisma: PrismaService;
   /** Creates a key directly in the database and returns the full key. */
   createKey(level: AccessLevel, name?: string): Promise<string>;
@@ -16,15 +16,23 @@ export interface TestApp {
   reset(): Promise<void>;
 }
 
-export async function createTestApp(): Promise<TestApp> {
+export interface TestAppOptions {
+  /** Serve this directory as the web app (see `setupWebApp`). */
+  webDir?: string;
+}
+
+export async function createTestApp(
+  options: TestAppOptions = {},
+): Promise<TestApp> {
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule],
   }).compile();
 
-  const app = moduleRef.createNestApplication<INestApplication<App>>({
+  const app = moduleRef.createNestApplication<NestExpressApplication>({
     logger: ['error'],
   });
   setupSwagger(app);
+  if (options.webDir) setupWebApp(app, options.webDir);
   await app.init();
 
   const prisma = app.get(PrismaService);

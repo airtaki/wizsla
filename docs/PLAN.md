@@ -271,7 +271,7 @@ frissül.
 
 **Lépések:**
 
-- 7.1 API: `GET /api-keys/me` (a kulcs neve és szintje, `read` szinttől), a
+- ✅ 7.1 API: `GET /api-keys/me` (a kulcs neve és szintje, `read` szinttől), a
   webapp kiszolgálása a `/app` alatt.
 - 7.2 Váz: `web/` projekt, típusos API-kliens, belépés, elrendezés, téma; a
   build bekötése a `deploy.sh`-ba és a CI-ba.

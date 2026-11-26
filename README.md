@@ -27,11 +27,21 @@ The last but one command prints an admin API key once; store it safely.
 
 - Health check (no key needed): `http://localhost:3000/health`
 - API documentation (Swagger UI): `http://localhost:3000/docs`
+- Web app: `http://localhost:3000/app` (once built; `/` redirects there)
+
+## Web app
+
+The admin and control web app (in progress, see [docs/PLAN.md](docs/PLAN.md),
+phase 7) is a static build in `web/dist`, served under `/app`. It holds no
+data and needs no key to load; it talks to the API only, with the key the
+user signs in with. Paths without a file extension return `index.html`, so
+the app's own routes survive a reload. Without a build, `/app` is off and the
+log says so.
 
 ## Authentication
 
-Every endpoint except `/health` and `/docs` needs an API key, sent as
-`X-API-Key: <key>` or `Authorization: Bearer <key>`.
+Every endpoint except `/health`, `/docs` and the web app's files needs an
+API key, sent as `X-API-Key: <key>` or `Authorization: Bearer <key>`.
 
 Keys have one of three levels, each including the previous one:
 
@@ -41,7 +51,9 @@ Keys have one of three levels, each including the previous one:
 | `control` | Switching and adjusting bulbs      |
 | `admin`   | Managing rooms, bulbs and API keys |
 
-Keys are managed through `/api-keys` (admin) or the CLI:
+`GET /api-keys/me` tells any valid key its own name and level, so a client
+can show only what the key allows. Keys are managed through `/api-keys`
+(admin) or the CLI:
 
 ```bash
 npm run cli -- apikey:create --name "Phone" --level control

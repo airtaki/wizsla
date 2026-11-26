@@ -179,6 +179,32 @@ describe('API keys and access levels (e2e)', () => {
     });
   });
 
+  describe('/api-keys/me', () => {
+    it.each(['read', 'control', 'admin'] as const)(
+      'tells a %s key its own name and level',
+      async (level) => {
+        const key = await t.createKey(level, 'Telefon');
+        const res = await http()
+          .get('/api-keys/me')
+          .set('X-API-Key', key)
+          .expect(200);
+        expect(res.body).toEqual({
+          id: expect.any(Number),
+          name: 'Telefon',
+          level,
+        });
+      },
+    );
+
+    it('needs a valid key', async () => {
+      await http().get('/api-keys/me').expect(401);
+      await http()
+        .get('/api-keys/me')
+        .set('X-API-Key', 'wzs_doesnotexist123')
+        .expect(401);
+    });
+  });
+
   describe('OpenAPI', () => {
     it('serves the document without a key, with the API key scheme', async () => {
       const res = await http().get('/docs-json').expect(200);
@@ -189,7 +215,12 @@ describe('API keys and access levels (e2e)', () => {
         name: 'X-API-Key',
       });
       expect(Object.keys(res.body.paths)).toEqual(
-        expect.arrayContaining(['/health', '/api-keys', '/api-keys/{id}']),
+        expect.arrayContaining([
+          '/health',
+          '/api-keys',
+          '/api-keys/me',
+          '/api-keys/{id}',
+        ]),
       );
     });
   });

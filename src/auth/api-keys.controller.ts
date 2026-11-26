@@ -12,9 +12,14 @@ import {
   ApiKeyDto,
   CreateApiKeyDto,
   CreatedApiKeyDto,
+  CurrentApiKeyDto,
 } from './api-keys.dto.js';
 import { ApiKeysService } from './api-keys.service.js';
-import { RequireLevel } from './decorators.js';
+import {
+  type AuthenticatedKey,
+  CurrentApiKey,
+  RequireLevel,
+} from './decorators.js';
 
 @ApiTags('API keys')
 @RequireLevel('admin')
@@ -25,6 +30,16 @@ export class ApiKeysController {
   @Get()
   list(): Promise<ApiKeyDto[]> {
     return this.apiKeys.list();
+  }
+
+  /**
+   * The key making this request: its name and level. Any valid key may ask,
+   * so a client can show only what the key is allowed to do.
+   */
+  @RequireLevel('read')
+  @Get('me')
+  me(@CurrentApiKey() key: AuthenticatedKey): CurrentApiKeyDto {
+    return { id: key.id, name: key.name, level: key.level };
   }
 
   /** Creates a key. The response contains the full key, only this once. */
