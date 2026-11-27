@@ -285,8 +285,13 @@ frissül.
   megy, a közben jöttek összevonódnak (a csúszka utolsó állása érkezik
   utoljára). Az izzóállapot az API-ban megkapta a fajtát (`kind`) és a
   színhőmérséklet-tartományt (`kelvin`), ehhez igazodnak a vezérlők.
-- 7.4 Admin: szobák, felderítés és izzók, kulcsok QR-kóddal, napló,
-  rendszer.
+- ✅ 7.4 Admin: szobák, felderítés és izzók, kulcsok QR-kóddal, napló,
+  rendszer. A Beállítások alatt, csak admin kulccsal. Szobák sorrendje
+  húzással (`@dnd-kit`), új szoba a lista végére; izzók szobánként, a szoba
+  nélküliek felül „Azonosít” gombbal és szobaválasztóval; kulcs
+  létrehozásakor QR-kód a belépő linkkel (`qrcode.react`), a saját kulcs
+  megjelölve. A `/health` válaszának típusa a `health.dto.ts`-be került,
+  így a verzió, a Node-verzió és a futásidő is az OpenAPI-ban van.
 - 7.5 iOS és HTTPS: ikon, manifest, indítókép; HTTPS a meglévő
   tanúsítvánnyal (a módját a tanúsítvány fajtája alapján döntjük el), így a
   kulcs titkosítva utazik, és service worker is használható; családi

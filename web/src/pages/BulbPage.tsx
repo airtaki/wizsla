@@ -7,16 +7,10 @@ import { describeBulb, signalLabel } from '../lights/describe';
 import { LightControls } from '../lights/LightControls';
 import { allBulbs, isLit, isReachable } from '../lights/model';
 import { useCanControl, useOverview } from '../lights/queries';
+import { formatDateTime } from '../format';
 import { useLightControl } from '../lights/useLightControl';
 
 const HOME = { to: '/', label: 'Otthon' };
-
-const time = new Intl.DateTimeFormat('hu-HU', {
-  month: 'short',
-  day: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-});
 
 export function BulbPage() {
   const { slug = '' } = useParams();
@@ -96,7 +90,7 @@ export function BulbPage() {
             </>
           )}
           <dt className="text-zinc-500">Utoljára válaszolt</dt>
-          <dd>{bulb.stateAt ? time.format(new Date(bulb.stateAt)) : '–'}</dd>
+          <dd>{bulb.stateAt ? formatDateTime(bulb.stateAt) : '–'}</dd>
         </dl>
       </Card>
     </Page>

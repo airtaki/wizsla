@@ -306,15 +306,32 @@ export interface components {
             /** @description The full key. It is shown only now; store it safely. */
             key: string;
         };
-        HealthBulbs: Record<string, never>;
+        HealthBulbs: {
+            /** @description Enabled bulbs. */
+            total: number;
+            /** @description Enabled bulbs that answered their last check. */
+            online: number;
+        };
         HealthStatus: {
-            /** @enum {string} */
+            /**
+             * @description `error` (with HTTP 503) when the database cannot be reached.
+             * @enum {string}
+             */
             status: "ok" | "error";
             /** @enum {string} */
             database: "ok" | "error";
+            /** @description From the background poll; offline bulbs do not make the service unhealthy. */
             bulbs: components["schemas"]["HealthBulbs"] | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description When the newest database backup was made.
+             */
             lastBackup: string | null;
+            version: string;
+            /** @description The Node.js version the service runs on, e.g. `v24.22.3`. */
+            node: string;
+            /** @description Seconds since the service started. */
+            uptime: number;
         };
         StateSummaryDto: {
             /** @description Average brightness of the bulbs that are on. */

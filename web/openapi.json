@@ -892,27 +892,42 @@
       },
       "HealthBulbs": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "total": {
+            "type": "number",
+            "description": "Enabled bulbs."
+          },
+          "online": {
+            "type": "number",
+            "description": "Enabled bulbs that answered their last check."
+          }
+        },
+        "required": [
+          "total",
+          "online"
+        ]
       },
       "HealthStatus": {
         "type": "object",
         "properties": {
           "status": {
-            "type": "string",
+            "description": "`error` (with HTTP 503) when the database cannot be reached.",
             "enum": [
               "ok",
               "error"
-            ]
+            ],
+            "type": "string"
           },
           "database": {
-            "type": "string",
             "enum": [
               "ok",
               "error"
-            ]
+            ],
+            "type": "string"
           },
           "bulbs": {
             "nullable": true,
+            "description": "From the background poll; offline bulbs do not make the service unhealthy.",
             "type": "object",
             "allOf": [
               {
@@ -923,14 +938,29 @@
           "lastBackup": {
             "format": "date-time",
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "description": "When the newest database backup was made."
+          },
+          "version": {
+            "type": "string"
+          },
+          "node": {
+            "type": "string",
+            "description": "The Node.js version the service runs on, e.g. `v24.22.3`."
+          },
+          "uptime": {
+            "type": "number",
+            "description": "Seconds since the service started."
           }
         },
         "required": [
           "status",
           "database",
           "bulbs",
-          "lastBackup"
+          "lastBackup",
+          "version",
+          "node",
+          "uptime"
         ]
       },
       "StateSummaryDto": {

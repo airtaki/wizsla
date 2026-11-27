@@ -1,5 +1,14 @@
-import { LogOut } from 'lucide-react';
-import { Button, Card } from '../components/ui';
+import {
+  Activity,
+  DoorOpen,
+  KeyRound,
+  Lightbulb,
+  LogOut,
+  ScrollText,
+} from 'lucide-react';
+import { MenuRow } from '../admin/components';
+import { useApiKeys, useBulbs, useRooms } from '../admin/queries';
+import { Button, Card, ListGroup } from '../components/ui';
 import { Page } from '../layout/AppShell';
 import { LEVEL_LABELS } from '../session/levels';
 import { useSession, useSignedIn } from '../session/session';
@@ -18,9 +27,7 @@ export function SettingsPage() {
           >
             Adminisztráció
           </h2>
-          <Card className="text-zinc-500">
-            Hamarosan: szobák, izzók, API-kulcsok, parancsnapló.
-          </Card>
+          <AdminMenu />
         </section>
       )}
 
@@ -45,5 +52,52 @@ export function SettingsPage() {
         </Card>
       </section>
     </Page>
+  );
+}
+
+function AdminMenu() {
+  const rooms = useRooms();
+  const bulbs = useBulbs();
+  const keys = useApiKeys();
+  const unassigned = bulbs.data?.filter((b) => b.room === null).length ?? 0;
+
+  return (
+    <ListGroup>
+      <MenuRow
+        to="/settings/rooms"
+        icon={DoorOpen}
+        tint="bg-orange-500"
+        label="Szobák"
+        detail={rooms.data?.length}
+      />
+      <MenuRow
+        to="/settings/bulbs"
+        icon={Lightbulb}
+        tint="bg-amber-500"
+        label="Izzók"
+        detail={
+          unassigned > 0 ? `${unassigned} szoba nélkül` : bulbs.data?.length
+        }
+      />
+      <MenuRow
+        to="/settings/keys"
+        icon={KeyRound}
+        tint="bg-sky-500"
+        label="API-kulcsok"
+        detail={keys.data?.filter((k) => !k.revokedAt).length}
+      />
+      <MenuRow
+        to="/settings/log"
+        icon={ScrollText}
+        tint="bg-violet-500"
+        label="Parancsnapló"
+      />
+      <MenuRow
+        to="/settings/system"
+        icon={Activity}
+        tint="bg-green-600"
+        label="Rendszer"
+      />
+    </ListGroup>
   );
 }

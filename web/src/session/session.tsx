@@ -26,6 +26,7 @@ import {
 } from './key-storage';
 
 export interface Session {
+  id: number;
   name: string;
   level: AccessLevel;
 }
@@ -52,7 +53,7 @@ async function whoIs(key: string): Promise<Session> {
   const me = await unwrap(
     api.GET('/api-keys/me', { headers: { 'X-API-Key': key } }),
   );
-  return { name: me.name, level: me.level };
+  return { id: me.id, name: me.name, level: me.level };
 }
 
 export function SessionProvider({ children }: { children: ReactNode }) {
