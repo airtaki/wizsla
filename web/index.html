@@ -18,6 +18,14 @@
       media="(prefers-color-scheme: dark)"
     />
     <link rel="icon" href="/app/icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/app/manifest.webmanifest" />
+    <!-- From the home screen: own icon, full screen, no Safari bars. -->
+    <link rel="apple-touch-icon" href="/app/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Wizsla" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <!-- ios-splash: startup images, added by vite.config.ts -->
     <title>Wizsla</title>
   </head>
   <body>

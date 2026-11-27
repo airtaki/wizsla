@@ -1,7 +1,19 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { loadEnv } from 'vite';
+import { loadEnv, type Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
+import { splashLinks } from './scripts/splash-sizes.mjs';
+
+const BASE = '/app/';
+
+/** Puts the startup images' `<link>` tags (one per iPhone and theme) in. */
+function iosSplash(): Plugin {
+  return {
+    name: 'ios-splash',
+    transformIndexHtml: (html) =>
+      html.replace(/<!-- ios-splash:.*?-->/, splashLinks(BASE)),
+  };
+}
 
 export default defineConfig(({ command, mode }) => {
   // The API's port, from the backend's .env (one level up). Read for the dev
@@ -12,8 +24,8 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     // Served by the API under /app (see src/web.ts in the backend).
-    base: '/app/',
-    plugins: [react(), tailwindcss()],
+    base: BASE,
+    plugins: [react(), tailwindcss(), iosSplash()],
     server: {
       // In development everything outside /app goes to the API, so the app
       // calls it on its own origin, as in production.

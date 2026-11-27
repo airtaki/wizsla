@@ -21,3 +21,13 @@ createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </StrictMode>,
 );
+
+// Browsers allow service workers on HTTPS (and localhost) only; on a plain
+// http:// LAN address the app simply runs without one.
+if (
+  import.meta.env.PROD &&
+  window.isSecureContext &&
+  'serviceWorker' in navigator
+) {
+  void navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' });
+}

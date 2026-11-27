@@ -292,11 +292,12 @@ frissül.
   létrehozásakor QR-kód a belépő linkkel (`qrcode.react`), a saját kulcs
   megjelölve. A `/health` válaszának típusa a `health.dto.ts`-be került,
   így a verzió, a Node-verzió és a futásidő is az OpenAPI-ban van.
-- 7.5 iOS és HTTPS: ikon, manifest, indítókép; HTTPS a meglévő
-  tanúsítvánnyal (a módját a tanúsítvány fajtája alapján döntjük el), így a
-  kulcs titkosítva utazik, és service worker is használható; családi
-  kulcsok; útmutató az Apple Parancsokhoz (gyors gombok a főképernyőn, a
-  widgetek között, a Vezérlőközpontban; a Siri nem beszél magyarul).
+- 7.5 iOS és HTTPS: ikon, manifest, indítókép; HTTPS a `wizsla.ilh.hu`
+  néven, csak otthonról (a név a Pi Wi-Fi-címére mutat, saját Let's Encrypt
+  tanúsítvány DNS-ellenőrzéssel), így a kulcs titkosítva utazik, és service
+  worker is használható; családi kulcsok; útmutató az Apple Parancsokhoz
+  (gyors gombok a főképernyőn, a widgetek között, a Vezérlőközpontban; a
+  Siri nem beszél magyarul).
 
 **Kész, ha:** egy családi iPhone-on a főképernyő-ikonról teljes képernyőn
 indul, minden lámpa vezérelhető, és a napi adminisztrációhoz már nem kell a
