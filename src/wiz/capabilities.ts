@@ -92,3 +92,19 @@ export function capabilitiesFromModule(
   }
   return capabilities;
 }
+
+/**
+ * A bulb's white range: the one stored for its model when known, else the
+ * typical one for its kind. `null` when the bulb has no adjustable white.
+ */
+export function kelvinRangeOf(bulb: {
+  kind: string;
+  kelvinMin: number | null;
+  kelvinMax: number | null;
+}): KelvinRange | null {
+  const typical = capabilitiesForKind(bulb.kind as BulbKind).colorTemp;
+  if (!typical) return null;
+  return bulb.kelvinMin !== null && bulb.kelvinMax !== null
+    ? { min: bulb.kelvinMin, max: bulb.kelvinMax }
+    : typical;
+}

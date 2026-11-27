@@ -4,6 +4,7 @@ import { sortByName } from '../common/sort.js';
 import { PrismaService } from '../database/prisma.service.js';
 import type { Bulb } from '../generated/prisma/client.js';
 import { RoomsService } from '../rooms/rooms.service.js';
+import { kelvinRangeOf } from '../wiz/capabilities.js';
 import { WizError } from '../wiz/errors.js';
 import type { BulbState } from '../wiz/protocol.js';
 import { findScene } from '../wiz/scenes.js';
@@ -233,6 +234,8 @@ export class StateService implements OnModuleDestroy {
       id: bulb.id,
       name: bulb.name,
       slug: bulb.slug,
+      kind: bulb.kind,
+      kelvin: kelvinRangeOf(bulb),
       room: bulb.room,
       enabled: bulb.enabled,
       online: reading?.online ?? null,

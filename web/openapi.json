@@ -966,6 +966,21 @@
           "on"
         ]
       },
+      "KelvinRangeDto": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ]
+      },
       "BulbRoomDto": {
         "type": "object",
         "properties": {
@@ -1087,6 +1102,27 @@
       "BulbStateDto": {
         "type": "object",
         "properties": {
+          "kind": {
+            "type": "string",
+            "description": "What the bulb can do: `rgb` takes colours too, `tunable-white` only white.",
+            "enum": [
+              "rgb",
+              "tunable-white",
+              "dimmable-white",
+              "socket",
+              "unknown"
+            ]
+          },
+          "kelvin": {
+            "nullable": true,
+            "description": "The bulb's white range in Kelvin; `null` without adjustable white.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KelvinRangeDto"
+              }
+            ]
+          },
           "room": {
             "nullable": true,
             "type": "object",
@@ -1142,6 +1178,8 @@
           }
         },
         "required": [
+          "kind",
+          "kelvin",
           "room",
           "online",
           "state",
@@ -1618,7 +1656,7 @@
           },
           "speed": {
             "type": "number",
-            "description": "Animation speed of dynamic scenes, 10–200 %.",
+            "description": "Animation speed of dynamic scenes, 10–200 %. Without `scene`, it is for\nthe scene each bulb plays now.",
             "minimum": 10,
             "maximum": 200
           }

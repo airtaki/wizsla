@@ -11,6 +11,8 @@ const bulb = (
   id: 1,
   name: 'x',
   slug: 'x',
+  kind: 'rgb',
+  kelvin: { min: 2200, max: 6500 },
   room: null,
   enabled: true,
   online,

@@ -9,6 +9,29 @@ export function json(body: unknown, status = 200): Response {
   });
 }
 
+/** A handler for "METHOD /path"; `:name` in the key matches one segment. */
+function findHandler(
+  handlers: Record<string, Handler>,
+  method: string,
+  pathname: string,
+): Handler | undefined {
+  const exact = handlers[`${method} ${pathname}`];
+  if (exact) return exact;
+  const segments = pathname.split('/');
+  for (const [key, handler] of Object.entries(handlers)) {
+    const [keyMethod, keyPath] = key.split(' ');
+    const pattern = keyPath.split('/');
+    if (
+      keyMethod === method &&
+      pattern.length === segments.length &&
+      pattern.every((p, i) => p.startsWith(':') || p === segments[i])
+    ) {
+      return handler;
+    }
+  }
+  return undefined;
+}
+
 /**
  * Replaces fetch with handlers keyed by "METHOD /path". Unknown calls answer
  * 404. Returns the requests made, for assertions.
@@ -20,7 +43,7 @@ export function fakeApi(handlers: Record<string, Handler>): Request[] {
     vi.fn(async (request: Request) => {
       requests.push(request);
       const { pathname } = new URL(request.url);
-      const handler = handlers[`${request.method} ${pathname}`];
+      const handler = findHandler(handlers, request.method, pathname);
       return handler
         ? handler(request)
         : json({ message: `No fake for ${pathname}` }, 404);

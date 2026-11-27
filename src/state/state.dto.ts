@@ -56,10 +56,25 @@ export class LightStateDto {
   rssi?: number;
 }
 
+export class KelvinRangeDto {
+  min!: number;
+  max!: number;
+}
+
 export class BulbStateDto {
   id!: number;
   name!: string;
   slug!: string;
+
+  /** What the bulb can do: `rgb` takes colours too, `tunable-white` only white. */
+  @ApiProperty({
+    enum: ['rgb', 'tunable-white', 'dimmable-white', 'socket', 'unknown'],
+  })
+  kind!: string;
+
+  /** The bulb's white range in Kelvin; `null` without adjustable white. */
+  @ApiProperty({ type: KelvinRangeDto, nullable: true })
+  kelvin!: KelvinRangeDto | null;
 
   @ApiProperty({ type: BulbRoomDto, nullable: true })
   room!: BulbRoomDto | null;

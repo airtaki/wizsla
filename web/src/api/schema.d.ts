@@ -327,6 +327,10 @@ export interface components {
             /** @description Online bulbs that are switched on. */
             on: number;
         };
+        KelvinRangeDto: {
+            min: number;
+            max: number;
+        };
         BulbRoomDto: {
             id: number;
             name: string;
@@ -366,6 +370,13 @@ export interface components {
             rssi?: number;
         };
         BulbStateDto: {
+            /**
+             * @description What the bulb can do: `rgb` takes colours too, `tunable-white` only white.
+             * @enum {string}
+             */
+            kind: "rgb" | "tunable-white" | "dimmable-white" | "socket" | "unknown";
+            /** @description The bulb's white range in Kelvin; `null` without adjustable white. */
+            kelvin: components["schemas"]["KelvinRangeDto"] | null;
             room: components["schemas"]["BulbRoomDto"] | null;
             /**
              * @description Whether the bulb answered the last check. `null` for a disabled bulb that
@@ -542,7 +553,10 @@ export interface components {
             coldWhite?: number;
             /** @description Warm white channel (0–255) mixed into `color`. */
             warmWhite?: number;
-            /** @description Animation speed of dynamic scenes, 10–200 %. */
+            /**
+             * @description Animation speed of dynamic scenes, 10–200 %. Without `scene`, it is for
+             *     the scene each bulb plays now.
+             */
             speed?: number;
         };
         BulbCommandResultDto: {

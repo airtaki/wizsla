@@ -117,7 +117,10 @@ The service reads every bulb right after startup and then every
 
 Add `?refresh=true` to ask the bulbs first. Each bulb shows `online`, its
 last reported `state` (on/off, brightness, colour temperature, RGB or scene,
-Wi-Fi signal), `stateAt` and `checkedAt`. An offline bulb keeps its last
+Wi-Fi signal), `stateAt` and `checkedAt`, plus its `kind` (`rgb`,
+`tunable-white`, `dimmable-white`, `socket`, `unknown`) and the colour
+temperatures it takes (`kelvin`: `{ min, max }`, or `null` when it takes
+none). An offline bulb keeps its last
 known state, so check `online` before trusting it. Summaries count the
 bulbs, how many are online and lit, and average the brightness and colour
 temperature of the lit ones.
@@ -150,6 +153,9 @@ every bulb:
 - Deltas are added to each bulb's own current value and kept within its
   limits. `colorTempDelta` works in white mode and in static white scenes
   (Warm White, Daylight…), not on a colour or a dynamic scene.
+- `speed` goes with a `scene`, or alone: then it changes the speed of the
+  scene each bulb plays, without restarting it on a lit bulb. Bulbs playing
+  no scene, or one without a speed, answer `unsupported`.
 - A room or the whole home always answers 200, with a `status` per bulb
   (`ok`, `offline`, `unsupported`, `failed`), a summary, and each bulb's state
   read back after the command. A single bulb answers 400 if it cannot do it,

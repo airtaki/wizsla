@@ -280,7 +280,11 @@ frissül.
   generált OpenAPI-dokumentumból készülnek (`npm run openapi`, majd
   `npm run --prefix web api`); a CI ellenőrzi, hogy naprakészek. Lint és
   formázás a gyökérből, a webappra is.
-- 7.3 Vezérlés: Otthon, Szoba, Izzó, Jelenetek.
+- ✅ 7.3 Vezérlés: Otthon, Szoba, Izzó, Jelenetek. A képernyő azonnal vált,
+  az izzók válasza utána felülírja; egy célpontra egyszerre egy parancs
+  megy, a közben jöttek összevonódnak (a csúszka utolsó állása érkezik
+  utoljára). Az izzóállapot az API-ban megkapta a fajtát (`kind`) és a
+  színhőmérséklet-tartományt (`kelvin`), ehhez igazodnak a vezérlők.
 - 7.4 Admin: szobák, felderítés és izzók, kulcsok QR-kóddal, napló,
   rendszer.
 - 7.5 iOS és HTTPS: ikon, manifest, indítókép; HTTPS a meglévő

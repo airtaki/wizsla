@@ -34,6 +34,7 @@ describe('parseCommand', () => {
     [{ scene: 'disco' }, /Unknown scene "disco"/],
     [{ scene: 'Warm White', speed: 50 }, /no adjustable speed/],
     [{ scene: 'night-light', brightness: 50 }, /cannot be dimmed/],
+    [{ colorTemp: 2700, speed: 50 }, /speed is for scenes/],
   ])('rejects %j', (dto, message) => {
     expect(() => parseCommand(dto)).toThrow(BadRequestException);
     expect(() => parseCommand(dto)).toThrow(message);
@@ -57,6 +58,10 @@ describe('parseCommand', () => {
     expect(needsCurrentState(parseCommand({ brightness: 50 }))).toBe(false);
     expect(needsCurrentState(parseCommand({ brightnessDelta: 5 }))).toBe(true);
     expect(needsCurrentState(parseCommand({ colorTempDelta: 5 }))).toBe(true);
+    expect(needsCurrentState(parseCommand({ speed: 50 }))).toBe(true);
+    expect(needsCurrentState(parseCommand({ scene: 'party', speed: 50 }))).toBe(
+      false,
+    );
   });
 });
 
@@ -143,6 +148,37 @@ describe('planFor', () => {
     expect(
       plan({ brightnessDelta: 10 }, rgb, { mode: 'scene', sceneId: 14 }),
     ).toEqual({ unsupported: 'The scene "Night Light" cannot be dimmed' });
+  });
+
+  describe('a speed without a scene', () => {
+    const party = { mode: 'scene' as const, sceneId: 4 };
+
+    it('goes alone to a lit bulb, so it stays in its scene', () => {
+      expect(plan({ speed: 80 }, rgb, party)).toEqual({
+        params: { speed: 80 },
+      });
+    });
+
+    it('restarts the scene when the bulb is off or more is set', () => {
+      expect(plan({ speed: 80 }, rgb, { ...party, on: false })).toEqual({
+        params: { state: true, sceneId: 4, speed: 80 },
+      });
+      expect(plan({ speed: 80, brightness: 60 }, rgb, party)).toEqual({
+        params: { state: true, dimming: 60, sceneId: 4, speed: 80 },
+      });
+    });
+
+    it('needs a scene with a speed', () => {
+      expect(plan({ speed: 80 }, rgb, { colorTemp: 3000 })).toEqual({
+        unsupported: 'No scene is playing',
+      });
+      expect(plan({ speed: 80 }, rgb, { mode: 'scene', sceneId: 11 })).toEqual({
+        unsupported: 'The scene "Warm White" has no adjustable speed',
+      });
+      expect(plan({ speed: 80 }, socket, party)).toEqual({
+        unsupported: 'This bulb has no scenes',
+      });
+    });
   });
 
   it('respects what the bulb can do', () => {

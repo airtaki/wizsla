@@ -3,6 +3,7 @@ import {
   type BulbKind,
   capabilitiesForKind,
   type KelvinRange,
+  kelvinRangeOf,
 } from '../wiz/capabilities.js';
 import {
   BRIGHTNESS_MAX,
@@ -61,6 +62,9 @@ export function parseCommand(dto: LightCommandDto): Command {
       `Only one of color, colorTemp, colorTempDelta and scene; got ${modes.join(', ')}`,
     );
   }
+  if (dto.speed !== undefined && modes.length > 0 && dto.scene === undefined) {
+    fail(`speed is for scenes; it cannot be combined with ${modes.join(', ')}`);
+  }
   if (dto.brightness !== undefined && dto.brightnessDelta !== undefined) {
     fail('Give brightness or brightnessDelta, not both');
   }
@@ -101,11 +105,15 @@ export function parseCommand(dto: LightCommandDto): Command {
   };
 }
 
-/** Deltas are relative to what the bulb shows now, so it must be read first. */
+/**
+ * Deltas are relative to what the bulb shows now, and a speed without a
+ * scene is for the scene it plays, so the bulb must be read first.
+ */
 export function needsCurrentState(command: Command): boolean {
   return (
     command.brightnessDelta !== undefined ||
-    command.colorTempDelta !== undefined
+    command.colorTempDelta !== undefined ||
+    (command.speed !== undefined && !command.scene)
   );
 }
 
@@ -123,10 +131,7 @@ export function planFor(
 
   const kind = bulb.kind as BulbKind;
   const capabilities = capabilitiesForKind(kind);
-  const kelvin: KelvinRange | null =
-    capabilities.colorTemp && bulb.kelvinMin !== null && bulb.kelvinMax !== null
-      ? { min: bulb.kelvinMin, max: bulb.kelvinMax }
-      : capabilities.colorTemp;
+  const kelvin: KelvinRange | null = kelvinRangeOf(bulb);
   const params: SetPilotParams = { state: true };
 
   if (
@@ -195,10 +200,37 @@ export function planFor(
 
   if (command.speed !== undefined) {
     if (!capabilities.scenes) return unsupported('This bulb has no scenes');
-    params.speed = command.speed;
+    if (command.scene) {
+      params.speed = command.speed;
+    } else {
+      return planSpeed(command, params, current);
+    }
   }
 
   return { params };
+}
+
+/**
+ * A new speed for the scene the bulb plays. Sent with `state: true` but no
+ * scene, the firmware leaves the scene instead of changing its speed, so a
+ * lit bulb gets the speed alone; anything else restarts the scene with it.
+ */
+function planSpeed(
+  command: Command,
+  params: SetPilotParams,
+  current: BulbState | undefined,
+): Plan {
+  const playing =
+    current?.mode === 'scene' ? findScene(current.sceneId ?? 0) : undefined;
+  if (!playing) return { unsupported: 'No scene is playing' };
+  if (!playing.speedAdjustable) {
+    return {
+      unsupported: `The scene "${playing.name}" has no adjustable speed`,
+    };
+  }
+  const speedOnly = Object.keys(params).every((key) => key === 'state');
+  if (speedOnly && current?.on) return { params: { speed: command.speed } };
+  return { params: { ...params, sceneId: playing.id, speed: command.speed } };
 }
 
 function describeMode(state: BulbState | undefined): string {

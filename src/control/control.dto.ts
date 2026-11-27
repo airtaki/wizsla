@@ -113,7 +113,10 @@ export class LightCommandDto {
   @IsSceneRef()
   scene?: number | string;
 
-  /** Animation speed of dynamic scenes, 10–200 %. */
+  /**
+   * Animation speed of dynamic scenes, 10–200 %. Without `scene`, it is for
+   * the scene each bulb plays now.
+   */
   @IsOptional()
   @IsInt()
   @Min(SPEED_MIN)

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { App } from './App';
+import { ToastProvider } from './components/toast';
 import { createQueryClient } from './query-client';
 import { SessionProvider } from './session/session';
 import { fakeApi, json, keys } from './test/fake-api';
@@ -24,7 +25,9 @@ function renderApp(path = '/') {
     <QueryClientProvider client={createQueryClient()}>
       <MemoryRouter initialEntries={[path]}>
         <SessionProvider>
-          <App />
+          <ToastProvider>
+            <App />
+          </ToastProvider>
         </SessionProvider>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -57,8 +60,7 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Belépés' }));
 
     expect(await screen.findByRole('heading', { name: 'Otthon' })).toBeTruthy();
-    expect(await screen.findByText('11/12')).toBeTruthy();
-    expect(screen.getByText('65%')).toBeTruthy();
+    expect(await screen.findByText('2 izzó ég · 11/12 elérhető')).toBeTruthy();
     expect(localStorage.getItem('wizsla.apiKey')).toBe('wzs_admin');
     const stateCall = requests.find((r) => r.url.endsWith('/state'));
     expect(stateCall?.headers.get('X-API-Key')).toBe('wzs_admin');

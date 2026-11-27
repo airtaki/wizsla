@@ -66,6 +66,9 @@ describe('State (e2e)', () => {
     const res = await get('/bulbs/olvaso/state');
     expect(res.body).toMatchObject({
       name: 'Olvasó',
+      kind: 'rgb',
+      // No model range stored: the typical range of colour bulbs.
+      kelvin: { min: 2200, max: 6500 },
       enabled: true,
       online: true,
       room: null,

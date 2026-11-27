@@ -1,6 +1,12 @@
-import { House, type LucideIcon, Settings, Sparkles } from 'lucide-react';
+import {
+  ChevronLeft,
+  House,
+  type LucideIcon,
+  Settings,
+  Sparkles,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
-import { NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import { cn } from '../components/ui';
 import { useSignedIn } from '../session/session';
 import { LEVEL_LABELS } from '../session/levels';
@@ -86,17 +92,35 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
-/** A page's title and content. */
+/** A page's title, an optional back link and header action, and content. */
 export function Page({
   title,
+  back,
+  action,
   children,
 }: {
   title: string;
+  back?: { to: string; label: string };
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <>
-      <h1 className="mb-5 text-[28px] font-bold tracking-tight">{title}</h1>
+      {back && (
+        <Link
+          to={back.to}
+          className="-ml-1 mb-1 inline-flex items-center gap-0.5 text-[15px] font-medium text-amber-600 dark:text-amber-400"
+        >
+          <ChevronLeft className="size-5" aria-hidden />
+          {back.label}
+        </Link>
+      )}
+      <div className="mb-5 flex items-center justify-between gap-4">
+        <h1 className="min-w-0 truncate text-[28px] font-bold tracking-tight">
+          {title}
+        </h1>
+        {action}
+      </div>
       <div className="flex flex-col gap-4">{children}</div>
     </>
   );

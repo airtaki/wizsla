@@ -108,6 +108,30 @@ describe('Control (e2e)', () => {
       });
     });
 
+    it('changes the speed of the scene playing, and keeps the scene', async () => {
+      const { fake } = await addBulb('Lámpa', {
+        state: { state: true, dimming: 50, sceneId: 3, speed: 100 },
+      });
+      const res = await patch('/bulbs/lampa/state', { speed: 150 }).expect(200);
+
+      // Not { state: true, speed }: that makes a real bulb leave the scene.
+      expect(sent(fake)).toEqual([{ speed: 150 }]);
+      expect(res.body.bulb.state).toMatchObject({
+        mode: 'scene',
+        scene: { name: 'Sunset' },
+        speed: 150,
+      });
+    });
+
+    it('has no speed to change when no scene plays', async () => {
+      const { fake } = await addBulb('Lámpa', {
+        state: { state: true, dimming: 50, temp: 3000 },
+      });
+      const res = await patch('/bulbs/lampa/state', { speed: 150 }).expect(400);
+      expect(sent(fake)).toEqual([]);
+      expect(res.body.message).toBe('No scene is playing');
+    });
+
     it('makes the light a bit warmer and dimmer', async () => {
       const { fake } = await addBulb('Lámpa', {
         state: { state: true, dimming: 50, temp: 3000 },

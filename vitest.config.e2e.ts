@@ -30,8 +30,10 @@ export default defineConfig({
       WIZ_DISCOVERY_MS: '300',
       // Tests ask for state explicitly; no background traffic.
       WIZ_POLL_INTERVAL_MS: '0',
-      // No backups into ./data during tests; the backup tests use a temp dir.
+      // No backups during tests (the backup tests use their own temp dir),
+      // and none read from ./data either.
       BACKUP_KEEP: '0',
+      BACKUP_DIR: join(tmpdir(), `wizsla-e2e-backups-${randomUUID()}`),
     },
   },
 });
